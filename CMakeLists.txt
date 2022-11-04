@@ -1,7 +1,7 @@
 project(sail-music CXX)
 cmake_minimum_required(VERSION 3.5)
 
-find_package (Qt5 COMPONENTS Core Network Qml Gui Quick REQUIRED)
+find_package (Qt5 COMPONENTS Core Network Qml Gui Quick Multimedia Xml REQUIRED)
 
 include(FindPkgConfig)
 pkg_search_module(SAILFISH sailfishapp REQUIRED)
@@ -12,6 +12,19 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 file(GLOB_RECURSE CPP_SOURCES "src/*.cpp")
 
 add_executable(sail-music ${CPP_SOURCES})
+
+option(SANITIZER "Build with sanitizer" none)
+if(SANITIZER STREQUAL "address")
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    target_compile_options(sail-music PRIVATE -fsanitize=address)
+    target_link_options(sail-music PRIVATE -fsanitize=address)
+elseif(SANITIZER STREQUAL "undefined")
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+elseif(SANITIZER STREQUAL "thread")
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
+else()
+    set(SANITIZER "none")
+endif()
 
 target_include_directories(sail-music PRIVATE "src")
 
@@ -24,6 +37,8 @@ target_include_directories(sail-music PRIVATE
 >)
 target_link_libraries(sail-music
     Qt5::Quick
+    Qt5::Multimedia
+    Qt5::Xml
     ${SAILFISH_LDFLAGS}
 )
 
@@ -84,3 +99,4 @@ file(WRITE "${CMAKE_BINARY_DIR}/QtCreatorDeployment.txt"
 ${CMAKE_BINARY_DIR}/sail-music:bin
 ")
 
+message(STATUS " Sanitizer ............................... ${SANITIZER}")

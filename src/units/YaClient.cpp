@@ -6,23 +6,21 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QNetworkProxy>
+#include <QMediaPlayer>
 #include <QSslError>
+#include <QCoreApplication>
 
-#include "YaClient.h"
-#include "settings.h"
-#include "Core.h"
+#include "units/YaClient.h"
 
 YaClient::YaClient(QObject *parent) : QObject(parent)
 {
-    _transport = new QNetworkAccessManager();
+    _transport = new ApiRequest();
 
 
-    QNetworkProxy proxy(QNetworkProxy::HttpProxy, "192.168.1.48", 8081);
+//    QNetworkProxy proxy(QNetworkProxy::HttpProxy, "192.168.1.48", 8081);
 
-    _transport->setProxy(proxy);
+//    _transport->setProxy(proxy);
 
-    connect(_transport, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)),
-                this, SLOT(replySSLErrors(QNetworkReply*,QList<QSslError>)));
 
 }
 
@@ -56,45 +54,32 @@ void YaClient::replySSLErrors(QNetworkReply *reply, QList<QSslError> errors)
 
 
 void
-YaClient::prepareRequest(QNetworkRequest* request)
-{
-    QString accessToken = _settings.value("accessToken").toString();
-
-    request->setRawHeader("Accept", "*/*");
-    request->setRawHeader("X-Requested-With", "XMLHttpRequest");
-    request->setHeader(QNetworkRequest::UserAgentHeader, "Yandex-Music-API");
-    request->setRawHeader("X-Yandex-Music-Client", "YandexMusicAndroid/23020251");
-
-    if (accessToken.size() > 0) {
-        request->setRawHeader("Authorization", QString("OAuth %1").arg(accessToken).toLatin1());
-    }
-}
-
-void
 YaClient::requestAuth(QString username, QString password, QString captchaAnswer)
 {
     QUrl url(AUTH_URL);
-    QNetworkRequest r(url);
-    QUrlQuery q;
+    QNetworkRequest request(url);
+    QUrlQuery query;
+    QByteArray data;
 
-    q.addQueryItem("grant_type", "password");
-    q.addQueryItem("username", username);
-    q.addQueryItem("password", password);
-    q.addQueryItem("client_id", CLIENT_ID);
-    q.addQueryItem("client_secret", CLIENT_SECRET);
+    query.addQueryItem("grant_type", "password");
+    query.addQueryItem("username", username);
+    query.addQueryItem("password", password);
+    query.addQueryItem("client_id", CLIENT_ID);
+    query.addQueryItem("client_secret", CLIENT_SECRET);
 
     if (_captchaKey.length() != 0 && captchaAnswer.length() != 0) {
-        q.addQueryItem("x_captcha_key", _captchaKey);
-        q.addQueryItem("x_captcha_answer", captchaAnswer);
+        query.addQueryItem("x_captcha_key", _captchaKey);
+        query.addQueryItem("x_captcha_answer", captchaAnswer);
     }
 
-    r.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    data = query.toString(QUrl::FullyEncoded).toUtf8();
 
-    prepareRequest(&r);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
-    QNetworkReply* reply = _transport->post(r, q.toString().toLatin1());
 
-    connect(reply, &QNetworkReply::finished, this, &YaClient::handleAuthResponse);
+    _transport->thirdPartyPostRequest(request, data);
+
+    connect(_transport, &ApiRequest::thirdPartyDataReady, this, &YaClient::handleAuthResponse);
 
 }
 
@@ -121,10 +106,8 @@ YaClient::setCaptchaData(QString captchaKey, QString captchaUrl)
 
 
 void
-YaClient::handleAuthResponse()
+YaClient::handleAuthResponse(QNetworkReply* reply)
 {
-    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-
     const QByteArray data = reply->readAll();
 
     if (reply->error() != QNetworkReply::NoError) {
@@ -169,4 +152,24 @@ YaClient::handleAuthResponse()
     emit authorized(_userId, _token);
 
     reply->deleteLater();
+}
+
+
+void delay( int millisecondsToWait )
+{
+    QTime dieTime = QTime::currentTime().addMSecs( millisecondsToWait );
+    while( QTime::currentTime() < dieTime )
+    {
+        QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+    }
+}
+
+void
+YaClient::play(QString url)
+{
+    QMediaPlayer *player = new QMediaPlayer();
+
+    player->setMedia(QUrl(url));
+    player->setVolume(50);
+    player->play();
 }

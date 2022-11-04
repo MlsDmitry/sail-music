@@ -7,11 +7,15 @@
 #include <QJSEngine>
 #include <QNetworkReply>
 #include <QSslError>
+#include <QByteArray>
+
+#include "utils/Settings.h"
+
+#define MUSIC_API_URL   "https://api.music.yandex.net"
 
 class Core : public QObject
 {
     Q_OBJECT
-//    Q_DISABLE_COPY(Core)
 public:
     Q_PROPERTY(QNetworkAccessManager* transport MEMBER _transport)
     explicit Core(QObject *parent = nullptr);
@@ -23,9 +27,6 @@ public:
 
         return new Core();
     }
-public slots:
-    void replySSLErrors(QNetworkReply *reply, QList<QSslError> errors);
-
 
 private:
     QNetworkAccessManager* _transport;

@@ -8,9 +8,15 @@
 #include <QQuickView>
 #include <QGuiApplication>
 
-#include "settings.h"
-#include "Core.h"
-#include "YaClient.h"
+#include "utils/Settings.h"
+#include "utils/Core.h"
+
+#include "units/YaClient.h"
+#include "units/Track.h"
+#include "units/Playlist.h"
+#include "units/Artist.h"
+
+#include "models/RadioListModel.h"
 
 #define PACKAGE_NAME "org.k_bsp.sailmusic"
 
@@ -33,13 +39,14 @@ int main(int argc, char *argv[])
     app->setOrganizationName(QStringLiteral("org.k_bsp"));
     app->setApplicationName(QStringLiteral("SailMusic"));
 
-//    Core core;
-
-//    QQmlContext *context = view.data()->rootContext();
-//    context->setContextProperty("core", &core);
+    qRegisterMetaType<Track*>();
+    qRegisterMetaType<Playlist>();
+    qRegisterMetaType<Artist*>();
 
     qmlRegisterSingletonType<Core>(PACKAGE_NAME, 1, 0, "Core", &Core::qmlInstance);
     qmlRegisterSingletonType<YaClient>(PACKAGE_NAME, 1, 0, "YaClient", &YaClient::qmlInstance);
+
+    qmlRegisterType<RadioListModel>(PACKAGE_NAME, 1, 0, "RadioListModel");
 
     view->setSource(SailfishApp::pathTo("qml/sail-music.qml"));
     view->show();

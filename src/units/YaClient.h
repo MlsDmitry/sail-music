@@ -9,10 +9,11 @@
 #include <QNetworkAccessManager>
 #include <QDateTime>
 
-#include "settings.h"
-//#include "Core.h"
+#include "utils/Settings.h"
+#include "utils/ApiRequest.h"
 
 #define AUTH_URL        "https://oauth.yandex.ru/token"
+#define API_URL         "https://api.music.yandex.net"
 #define CLIENT_ID       "23cabbbdc6cd418abb4b39c32c41195d"
 #define CLIENT_SECRET   "53bc75238f0c4d08a118e51fe9203300"
 
@@ -47,14 +48,15 @@ public:
 
     Q_INVOKABLE void requestAuth(QString username, QString password, QString captchaAnswer="");
 
+    Q_INVOKABLE void play(QString url);
 
 public slots:    
     void replySSLErrors(QNetworkReply *reply, QList<QSslError> errors);
-    void handleAuthResponse();
+    void handleAuthResponse(QNetworkReply* reply);
 
 signals:
     void error(YaClient::Error error);
-    void authorized(QString token, QString userId);
+    void authorized(QString userId, QString token);
 
 private:
     void clearCaptchaData();
@@ -79,7 +81,7 @@ private:
     QDateTime _ttl;
 
 public:
-    QNetworkAccessManager* _transport;
+    ApiRequest* _transport;
 
 
 };
