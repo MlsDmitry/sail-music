@@ -9,6 +9,8 @@ Page {
 
     property var radio
 
+    property var currentCoverImg
+
     SilicaFlickable {
         anchors.fill: parent
 
@@ -51,6 +53,8 @@ Page {
                 id: coverImage
 
                 asynchronous: true
+
+                source: currentCoverImg
             }
 
             Connections {
@@ -69,6 +73,9 @@ Page {
 
                 onFeedbackReceived: {
                     radio.prepareCurrentTrackToPlay();
+                    songTitle.text = radio.currentTrack.title
+                    coverImage.source = radio.currentTrack.coverUrl.replace("%%", "1000x1000")
+                    currentCoverImg = radio.currentTrack.coverUrl.replace("%%", "1000x1000")
                 }
 
                 onCurrentTrackLinkReady: {
@@ -84,9 +91,10 @@ Page {
         console.log("Index is " + radio.currentIndex + " Page status " + status + " === " + PageStatus.Active);
         if (status == PageStatus.Active && radio.currentIndex !== -1) {
             console.log(radio.get(radio.currentIndex).coverUrl.replace("%%", "1000x1000"));
-            var coverUrl = radio.get(radio.currentIndex).coverUrl.replace("%%", "1000x1000");
-            coverImage.source = coverUrl;
-            songTitle.text = radio.get(radio.currentIndex).title;
+            console.log(currentCoverImg);
+//            var coverUrl = radio.get(radio.currentIndex).coverUrl.replace("%%", "1000x1000");
+//            coverImage.source = coverUrl;
+//            songTitle.text = radio.get(radio.currentIndex).title;
         }
     }
 }

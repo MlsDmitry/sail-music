@@ -11,6 +11,8 @@ Page {
 
     id: page
 
+
+
     RadioListModel {
         id: radioListModel
 
@@ -71,5 +73,10 @@ Page {
     }
 
     onStatusChanged: if (status === PageStatus.Active) {
-                         pageStack.pushAttached(Qt.resolvedUrl("TrackPage.qml"), { "radio": radioListModel});}
+                         pageStack.pushAttached(Qt.resolvedUrl("TrackPage.qml"), {
+                                                    "radio": radioListModel,
+                                                    "currentCoverImg": radioListModel.currentIndex >= 0 ? radioListModel.currentTrack.coverUrl.replace("%%", "1000x1000") : ""
+                                                }
+                                                );
+                     }
 }
