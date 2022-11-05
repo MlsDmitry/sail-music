@@ -1,7 +1,7 @@
 Introduction
 ============
 
-This is Music client for Yandex.Music service. This
+This is Music client for Yandex.Music service. The
 application is developed for Sailfish OS. It's available on
 openrepos and on github, feel free to download latest
 release and enjoy listening to music :)
