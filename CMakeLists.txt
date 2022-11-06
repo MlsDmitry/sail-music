@@ -1,5 +1,5 @@
 project(sail-music CXX)
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.19)
 
 find_package (Qt5 COMPONENTS Core Network Qml Gui Quick Multimedia Xml REQUIRED)
 
@@ -8,6 +8,9 @@ pkg_search_module(SAILFISH sailfishapp REQUIRED)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # does not produce the json file
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "") # works
+
 
 file(GLOB_RECURSE CPP_SOURCES "src/*.cpp")
 
@@ -15,32 +18,29 @@ add_executable(sail-music ${CPP_SOURCES})
 
 option(SANITIZER "Build with sanitizer" none)
 if(SANITIZER STREQUAL "address")
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
     target_compile_options(sail-music PRIVATE -fsanitize=address)
     target_link_options(sail-music PRIVATE -fsanitize=address)
 elseif(SANITIZER STREQUAL "undefined")
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+    target_link_options(sail-music PRIVATE -fsanitize=undefined)
 elseif(SANITIZER STREQUAL "thread")
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
+    target_link_options(sail-music PRIVATE -fsanitize=thread)
 else()
     set(SANITIZER "none")
 endif()
 
-set(JSON_DTO_TEST OFF)
-set(JSON_DTO_SAMPLE OFF)
-set(JSON_DTO_INSTALL OFF)
 
-add_subdirectory("../json_dto/dev" "build")
+add_subdirectory("lib/json_dto")
 
-target_include_directories(sail-music PRIVATE "src" "../json_dto/dev/rapidjson/include" "../json_dto/dev")
+target_include_directories(sail-music PRIVATE "src" "lib/json_dto/include")
 
 target_compile_definitions(sail-music PRIVATE
     $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>
 )
 target_include_directories(sail-music PRIVATE
     $<BUILD_INTERFACE:
-    ${SAILFISH_INCLUDE_DIRS}
->)
+    ${SAILFISH_INCLUDE_DIRS}>)
 target_link_libraries(sail-music
     Qt5::Quick
     Qt5::Multimedia
