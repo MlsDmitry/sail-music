@@ -77,7 +77,7 @@ RadioListModel::sendFeedbackRequest(RadioListModel::FeedbackTypes feedbackType)
 
 
     this->_transport->apiPostRequest(request, dataEncoded);
-    connect(this->_transport, &ApiRequest::thirdPartyDataReady, this, &RadioListModel::handleFeedbackResponse);
+    connect(this->_transport, &ApiRequest::thirdPartyDataReady, this, &RadioListModel::handleFeedbackResponse, Qt::UniqueConnection);
 }
 
 void
@@ -118,7 +118,7 @@ RadioListModel::getTracks()
         endInsertRows();
 
         emit tracksReceived();
-    });
+    }, Qt::UniqueConnection);
 }
 
 void

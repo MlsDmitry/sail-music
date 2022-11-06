@@ -2,6 +2,7 @@
 #define TRACKADAPTER_H
 
 #include "json_dto/pub.hpp"
+#include "Models/TrackModel.h"
 
 #include <iostream>
 #include <string>
@@ -47,7 +48,44 @@ struct track_t
     }
 };
 
+struct track_download_info_t
+{
+    track_download_info_t () {}
 
-void parseTrack(QJsonValue& data);
+    track_download_info_t (
+            std::string codec,
+            std::string downloadInfoUrl,
+            std::uint16_t bitrate)
+    {
+        _codec = std::move(codec);
+        _downloadInfoUrl = std::move(downloadInfoUrl);
+        bitrate = _bitrate;
+    }
+
+    std::string _codec;
+    std::string _downloadInfoUrl;
+    std::uint16_t _bitrate;
+
+    template<typename Json_Io>
+    void json_io(Json_Io & io)
+    {
+        io & json_dto::mandatory("codec", _codec)
+            & json_dto::mandatory("downloadInfoUrl", _downloadInfoUrl)
+            & json_dto::mandatory("bitrateInKbps", _bitrate);
+    }
+};
+
+struct track_file_download_info
+{
+    QString path;
+    QString signature;
+    QString host;
+    QString ts;
+};
+
+
+Track*                      parseTrack(QJsonValue& data);
+QVariantMap                 parseDownloadInfo(QJsonValue& data);
+track_file_download_info    parseTrackFileDownloadInfo(QByteArray data);
 
 #endif // TRACKADAPTER_H

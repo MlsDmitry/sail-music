@@ -171,17 +171,23 @@ PlayListModel::setIndex(int idx)
 void
 PlayListModel::prepareCurrentTrackToPlay()
 {
+    if (_currentTrack->downloadInfos.count() > 0) {
+        qDebug() << "Found cached download info.";
+        return;
+    }
 
-    _currentTrack->requestDownloadInfo();
+    _currentTrack->getTrackDownloadInfo();
 
-    connect(_currentTrack, &Track::downloadInfoReady, this, &PlayListModel::trackDownloadInfoReady);
+    connect(_currentTrack, &Track::downloadInfoReady, this, &PlayListModel::trackDownloadInfoReady, Qt::UniqueConnection);
 }
 
 void
 PlayListModel::trackDownloadInfoReady()
 {
-    _currentTrack->requestFileDownloadInfo(QString::number(_currentTrack->maxBitrate));
+    _currentTrack->getTrackFileDownloadLink("320");
 
-    connect(_currentTrack, &Track::downloadLinkReady, this, &PlayListModel::currentTrackLinkReady);
+    qDebug() << "Requesting track link for 320";
+
+    connect(_currentTrack, &Track::downloadLinkReady, this, &PlayListModel::currentTrackLinkReady, Qt::UniqueConnection);
 }
 

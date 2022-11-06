@@ -4,32 +4,41 @@
 #include <QXmlStreamReader>
 #include <QCryptographicHash>
 #include <QThread>
+#include <QDebug>
 
 #include "Models/TrackModel.h"
+#include "Services/TrackService.h"
+#include "Adapters/TrackAdapter.h"
 
 Track::Track(QObject *parent) : QObject(parent)
 {
-    _transport = new ApiRequest();
-    _cache = new Cache;
-    _cacheThread = new QThread();
+    _service = new TrackService();
+    //    _cache = new Cache;
+    //    _cacheThread = new QThread();
 
     minBitrate = -1; // cause it's quint16 -1 will be the maximum value
     maxBitrate = 0;
 
-    connect(_cache, &Cache::imageSaved, this, &Track::trackCoverSaved);
+    //    connect(_cache, &Cache::imageSaved, this, &Track::trackCoverSaved);
 
-    _cache->moveToThread(_cacheThread);
+    //    _cache->moveToThread(_cacheThread);
 }
 
 void
-Track::requestDownloadInfo()
+Track::getTrackDownloadInfo()
 {
-    QUrl url("https://api.music.yandex.net/tracks/" + id + "/download-info");
-    QNetworkRequest request(url);
+    if (downloadInfos.count() > 0) {
+        qDebug() << "Found cached download INFO.";
+        emit downloadInfoReady();
+        return;
+    }
+    _service->requestDownloadInfo(id);
 
-    _transport->apiGetRequest(request);
-
-    connect(_transport, &ApiRequest::dataReady, this, &Track::handleDownloadInfoResponse);
+    //    connect(_service, &TrackService::trackDownloadInfoReady, this, [&](QJsonValue& data) {
+    //        downloadInfos = parseDownloadInfo(data);
+    //        emit downloadInfoReady();
+    //    }, Qt::UniqueConnection);
+    connect(_service, &TrackService::trackDownloadInfoReady, this, &Track::handleDownloadInfoResponse, Qt::UniqueConnection);
 }
 
 void
@@ -40,85 +49,82 @@ Track::handleDownloadInfoResponse(QJsonValue& data)
         return;
     }
 
-    qDebug() << "[+] Fetching download links.";
-    for(QJsonValue&& downloadInfo : data.toArray()) {
-        QJsonObject downloadInfoObject = downloadInfo.toObject();
-
-        if (downloadInfoObject.value("codec").toString() != "mp3")
-            continue;
-
-        int bitrate = downloadInfoObject.value("bitrateInKbps").toInt();
-
-        if (minBitrate > bitrate)
-            minBitrate = bitrate;
-
-        if (maxBitrate < bitrate)
-            maxBitrate = bitrate;
-
-        downloadInfos.insert(QString::number(bitrate), downloadInfoObject.value("downloadInfoUrl").toString());
-
-        qDebug() << "\tBitrate: " << QString::number(bitrate);
-        qDebug() << "\t link: " << downloadInfoObject.value("downloadInfoUrl").toString();
-
-    }
-
-    qDebug() << "[+] Done fetching download links.";
-
+    downloadInfos = parseDownloadInfo(data);
     emit downloadInfoReady();
 }
 
 void
-Track::requestFileDownloadInfo(QString bitrate)
+Track::getTrackFileDownloadLink(QString bitrate)
 {
-    if (_lastBitrate == bitrate) {
-        emit downloadLinkReady(_downloadDirectLinks.value(bitrate).toString());
+    Q_ASSERT(downloadInfos.contains(bitrate));
+
+    if (_downloadDirectLinks.contains(bitrate)) {
+        qDebug() << "Found cached download LINK.";
+        emit downloadLinkReady(getDirectDownloadLink(bitrate));
         return;
     }
-    QString downloadUrl = downloadInfos.value(bitrate, QString()).toString();
 
-    if (downloadUrl.length() == 0)
-        return;
+    _service->requestFileDownloadInfo(downloadInfos.value(bitrate).toString());
 
-    _lastBitrate = bitrate;
+//    connect(_service, &TrackService::trackFileDownloadInfoReady, this, [&](QByteArray data) {
+//        track_file_download_info info = parseTrackFileDownloadInfo(data);
 
-    QUrl url(downloadUrl);
-    QNetworkRequest request(url);
+//        QString signature = QString(
+//                    QCryptographicHash::hash(
+//                        (("XGRlBW9FXlekgbPrRHuSiA" + info.path.mid(1) + info.signature)).toUtf8(),
+//                        QCryptographicHash::Md5
+//                        ).toHex()
+//                    );
 
-    _transport->thirdPartyGetRequest(request);
+//        QString directDownloadLink = "https://" + info.host + "/get-mp3/" + signature + "/" + info.ts + info.path;
 
-    connect(_transport, &ApiRequest::thirdPartyDataReady, this, &Track::handleFileDownloadInfoResponse);
+
+//        //        _downloadDirectLinks.insert(bitrate, directDownloadLink);
+//        QVariantMap links;
+
+//        links.insert(bitrate, directDownloadLink);
+
+//        _downloadDirectLinks = links;
+
+//        qDebug() << "Got link! " << directDownloadLink;
+
+//        emit downloadLinkReady(directDownloadLink);
+//    }, Qt::UniqueConnection);
+
+    connect(_service, &TrackService::trackFileDownloadInfoReady, this, &Track::handleTrackFileDownload, Qt::UniqueConnection);
 
 }
 
 void
-Track::handleFileDownloadInfoResponse(QNetworkReply* reply)
+Track::handleTrackFileDownload(QByteArray data)
 {
-    QVariantMap downloadInfo;
-    QString signature;    Q_INVOKABLE void requestDownloadInfo();
-    Q_INVOKABLE void requestFileDownloadInfo(QString bitrate);
-    Q_INVOKABLE QString getDirectDownloadLink(QString bitrate);
-    void cacheTrackCover(QString imageResolution);
-    QByteArray data = reply->readAll();
-    QXmlStreamReader reader(data);
+    track_file_download_info info = parseTrackFileDownloadInfo(data);
 
-    if (reader.readNextStartElement()) {
-        QStringRef elName = reader.name();
+    if (info.host == "")
+        return;
 
-        if (reader.name() == "download-info") {
-            while(reader.readNextStartElement()){
-                downloadInfo.insert(reader.name().toString(), reader.readElementText());
-            }
-        }
-    }
+    QString signature = QString(
+                QCryptographicHash::hash(
+                    (("XGRlBW9FXlekgbPrRHuSiA" + info.path.mid(1) + info.signature)).toUtf8(),
+                    QCryptographicHash::Md5
+                    ).toHex()
+                );
 
-    signature = QString(QCryptographicHash::hash((("XGRlBW9FXlekgbPrRHuSiA" + downloadInfo.value("path").toString().mid(1) + downloadInfo.value("s").toString()).toUtf8()), QCryptographicHash::Md5).toHex());
+    QString directDownloadLink = "https://" + info.host + "/get-mp3/" + signature + "/" + info.ts + info.path;
 
-    QString directDownloadLink = "https://" + downloadInfo.value("host").toString() + "/get-mp3/" + signature + "/" + downloadInfo.value("ts").toString() + downloadInfo.value("path").toString();
 
-    _downloadDirectLinks.insert(_lastBitrate, directDownloadLink);
+    //        _downloadDirectLinks.insert(bitrate, directDownloadLink);
+    QVariantMap links;
+
+//    links.insert("320", directDownloadLink);
+
+    _downloadDirectLinks.insert("320", directDownloadLink);
+
+    qDebug() << "Got link! " << directDownloadLink;
 
     emit downloadLinkReady(directDownloadLink);
 }
+
 
 QString
 Track::getDirectDownloadLink(QString bitrate)
@@ -127,36 +133,36 @@ Track::getDirectDownloadLink(QString bitrate)
 }
 
 
-void
-Track::cacheTrackCover(QString imageResolution)
-{
-    Q_ASSERT(coverUrl.length() > 0);
+//void
+//Track::cacheTrackCover(QString imageResolution)
+//{
+//    Q_ASSERT(coverUrl.length() > 0);
 
-    coverUrl.replace("%%", imageResolution);
+//    coverUrl.replace("%%", imageResolution);
 
-    QUrl url(coverUrl);
-    QNetworkRequest request(url);
+//    QUrl url(coverUrl);
+//    QNetworkRequest request(url);
 
-    _transport->thirdPartyGetRequest(request, false);
+//    _transport->thirdPartyGetRequest(request, false);
 
-    connect(_transport, &ApiRequest::thirdPartyDataReady, this, &Track::trackCoverDataReady);
+//    connect(_transport, &ApiRequest::thirdPartyDataReady, this, &Track::trackCoverDataReady);
 
-}
+//}
 
-void
-Track::trackCoverDataReady(QNetworkReply* reply)
-{
-    QByteArray data = reply->readAll();
-    reply->deleteLater();
-    _cache->saveImageData(reply->url().toEncoded(QUrl::FullyEncoded), data);
-}
+//void
+//Track::trackCoverDataReady(QNetworkReply* reply)
+//{
+//    QByteArray data = reply->readAll();
+//    reply->deleteLater();
+//    _cache->saveImageData(reply->url().toEncoded(QUrl::FullyEncoded), data);
+//}
 
-void
-Track::trackCoverSaved(QString imagePath, QString urlHash)
-{
-    coverUrl = "file:///" + imagePath;
+//void
+//Track::trackCoverSaved(QString imagePath, QString urlHash)
+//{
+//    coverUrl = "file:///" + imagePath;
 
-    qDebug() << "Track " << title << " updated cover URL to " << coverUrl;
+//    qDebug() << "Track " << title << " updated cover URL to " << coverUrl;
 
-    emit coverUrlUpdated();
-}
+//    emit coverUrlUpdated();
+//}

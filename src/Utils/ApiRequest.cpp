@@ -61,7 +61,7 @@ ApiRequest::thirdPartyGetRequest(QNetworkRequest& request, bool includeAuthoriza
 
     QNetworkReply* reply = _transport->get(request);
 
-    connect(reply, &QNetworkReply::finished, this, &ApiRequest::thirdPartyResponseReady);
+    connect(reply, &QNetworkReply::finished, this, &ApiRequest::thirdPartyResponseReady, Qt::UniqueConnection);
 }
 
 void
@@ -81,7 +81,7 @@ ApiRequest::thirdPartyPostRequest(QNetworkRequest& request, QByteArray& data, bo
 
     QNetworkReply* reply = _transport->post(request, data);
 
-    connect(reply, &QNetworkReply::finished, this, &ApiRequest::thirdPartyResponseReady);
+    connect(reply, &QNetworkReply::finished, this, &ApiRequest::thirdPartyResponseReady, Qt::UniqueConnection);
 }
 
 void
@@ -100,7 +100,7 @@ ApiRequest::apiGetRequest(QNetworkRequest& request)
 
     QNetworkReply* reply = _transport->get(request);
 
-    connect(reply, &QNetworkReply::finished, this, &ApiRequest::responseReady);
+    connect(reply, &QNetworkReply::finished, this, &ApiRequest::responseReady, Qt::UniqueConnection);
 }
 
 
@@ -123,7 +123,7 @@ ApiRequest::apiPostRequest(QNetworkRequest& request, QByteArray& data)
 
     QNetworkReply* reply = _transport->post(request, data);
 
-    connect(reply, &QNetworkReply::finished, this, &ApiRequest::responseReady);
+    connect(reply, &QNetworkReply::finished, this, &ApiRequest::responseReady, Qt::UniqueConnection);
 }
 
 void ApiRequest::replySSLErrors(QNetworkReply *reply, QList<QSslError> errors)

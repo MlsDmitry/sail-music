@@ -11,7 +11,7 @@
 
 #include "Utils/Cache.h"
 #include "Utils/Core.h"
-#include "Utils/ApiRequest.h"
+#include "Services/TrackService.h"
 #include "Models/AlbumModel.h"
 
 class Track : public QObject
@@ -25,18 +25,20 @@ public:
 
     explicit Track(QObject *parent = nullptr);
 
-    Q_INVOKABLE void requestDownloadInfo();
-    Q_INVOKABLE void requestFileDownloadInfo(QString bitrate);
+    Q_INVOKABLE void getTrackDownloadInfo();
+    Q_INVOKABLE void getTrackFileDownloadLink(QString bitrate);
     Q_INVOKABLE QString getDirectDownloadLink(QString bitrate);
-    void cacheTrackCover(QString imageResolution);
+//    void cacheTrackCover(QString imageResolution);
 
 
 public slots:
-    void handleFileDownloadInfoResponse(QNetworkReply* reply);
     void handleDownloadInfoResponse(QJsonValue& data);
+    void handleTrackFileDownload(QByteArray data);
+//    void handleFileDownloadInfoResponse(QNetworkReply* reply);
+//    void handleDownloadInfoResponse(QJsonValue& data);
 
-    void trackCoverSaved(QString imagePath, QString urlHash);
-    void trackCoverDataReady(QNetworkReply* reply);
+//    void trackCoverSaved(QString imagePath, QString urlHash);
+//    void trackCoverDataReady(QNetworkReply* reply);
 
 signals:
     void coverUrlUpdated();
@@ -61,7 +63,7 @@ private:
     QThread*    _cacheThread;
     QString     _lastBitrate;
     QVariantMap _downloadDirectLinks;
-    ApiRequest* _transport;
+    TrackService* _service;
 
 };
 

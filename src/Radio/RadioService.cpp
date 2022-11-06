@@ -27,6 +27,6 @@ RadioService::requestTracks(QString station)
 
     this->_transport->apiGetRequest(request);
 
-    connect(this->_transport, &ApiRequest::dataReady, this, &RadioService::tracksReceived);
+    connect(this->_transport, &ApiRequest::dataReady, this, &RadioService::tracksReceived, Qt::UniqueConnection);
 
 }

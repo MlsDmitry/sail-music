@@ -22,17 +22,9 @@ parseTracks(QJsonValue& jsonData)
 
     for (QJsonValue trackJson : tracksJson)
     {
+        QJsonValue track = trackJson.toObject().value("track");
 
-        QString trackStr = QJsonDocument(trackJson.toObject().value("track").toObject()).toJson(QJsonDocument::Compact);
-        auto track = json_dto::from_json<track_t>(trackStr.toStdString());
-
-        Track* trackModel = new Track;
-
-        trackModel->id = QString::fromStdString(track._id);
-        trackModel->title = QString::fromStdString(track._title);
-        trackModel->coverUrl = "https://" + QString::fromStdString(track._coverUrl);
-
-        tracks.append(QVariant::fromValue(trackModel));
+        tracks.append(QVariant::fromValue(parseTrack(track)));
     }
 
     return tracks;
