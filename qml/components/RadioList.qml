@@ -94,7 +94,7 @@ Item {
                     anchors.fill: parent
                     onClicked: {
                         radio.changeStation(station);
-                        radio.sendTracksRequest();
+                        radio.getTracks();
 
                     }
                     onPressed: {

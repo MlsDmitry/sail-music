@@ -5,7 +5,7 @@
 #include <QString>
 #include <QByteArray>
 
-#include "utils/ApiRequest.h"
+#include "Utils/ApiRequest.h"
 
 class Cache : public QObject
 {

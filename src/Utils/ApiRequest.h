@@ -8,7 +8,7 @@
 #include <QSslError>
 #include <QNetworkAccessManager>
 
-#include "utils/Settings.h"
+#include "Utils/Settings.h"
 
 class ApiRequest : public QObject
 {

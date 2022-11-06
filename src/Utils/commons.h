@@ -5,4 +5,6 @@
 
 qint64 hash(const QString & str);
 
+QString makeUrl(const char * baseUrl, const char *format, ...);
+
 #endif // COMMONS_H

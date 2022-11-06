@@ -7,22 +7,19 @@
 #include <QNetworkAccessManager>
 #include <QJsonValue>
 
-#include "models/PlayListModel.h"
-#include "utils/ApiRequest.h"
-#include "utils/Core.h"
-#include "units/Artist.h"
-#include "units/Album.h"
-#include "units/Track.h"
+#include "Models/PlayListModel.h"
+#include "Utils/ApiRequest.h"
+#include "Utils/Core.h"
+#include "Models/ArtistModel.h"
+#include "Models/AlbumModel.h"
+#include "Models/TrackModel.h"
+#include "Radio/RadioService.h"
+#include "Radio/RadioAdapter.h"
 
 #define RADIO_STARTED   "radioStarted"
 #define TRACK_STARTED   "trackStarted"
 #define TRACK_FINISHED  "trackFinished"
 #define SKIP            "skip"
-
-#define STATION_FEEDBACK    "/rotor/station/%s/feedback"
-#define STATION_TRACKS      "/rotor/station/%s/tracks"
-#define STATION_INFO        "/rotor/station/%s/info"
-#define STATION_SETTINGS    "/rotor/station/%s/settings2"
 
 class RadioListModel : public PlayListModel
 {
@@ -49,7 +46,7 @@ public:
 
     Q_INVOKABLE void changeStation(QString station);
 
-    virtual void sendTracksRequest() override;
+    virtual void getTracks() override;
     Q_INVOKABLE void sendFeedbackRequest(RadioListModel::FeedbackTypes feedbackType);
     Q_INVOKABLE void sendPlayAudioRequest();
     Q_INVOKABLE void sendInfoRequest();
@@ -60,6 +57,7 @@ public slots:
 
 signals:
     void feedbackReceived();
+private:
+    RadioService* _service;
 };
-
 #endif // RADIOLISTMODEL_H

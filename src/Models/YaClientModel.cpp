@@ -10,7 +10,7 @@
 #include <QSslError>
 #include <QCoreApplication>
 
-#include "units/YaClient.h"
+#include "Models/YaClientModel.h"
 
 YaClient::YaClient(QObject *parent) : QObject(parent)
 {

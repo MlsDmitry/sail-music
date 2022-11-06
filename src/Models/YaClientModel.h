@@ -10,8 +10,8 @@
 #include <QDateTime>
 #include <QMediaPlayer>
 
-#include "utils/Settings.h"
-#include "utils/ApiRequest.h"
+#include "Utils/Settings.h"
+#include "Utils/ApiRequest.h"
 
 #define AUTH_URL        "https://oauth.yandex.ru/token"
 #define API_URL         "https://api.music.yandex.net"

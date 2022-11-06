@@ -12,15 +12,14 @@
 #include <ctime>
 #include <json_dto/pub.hpp>
 
-#include "utils/Settings.h"
-#include "utils/Core.h"
+#include "Utils/Settings.h"
+#include "Utils/Core.h"
 
-#include "units/YaClient.h"
-#include "units/Track.h"
-#include "units/Playlist.h"
-#include "units/Artist.h"
+#include "Models/YaClientModel.h"
+#include "Models/TrackModel.h"
+#include "Models/ArtistModel.h"
 
-#include "models/RadioListModel.h"
+#include "Radio/RadioListModel.h"
 
 #define PACKAGE_NAME "org.k_bsp.sailmusic"
 
@@ -107,7 +106,6 @@ int main(int argc, char *argv[])
     app->setApplicationName(QStringLiteral("SailMusic"));
 
     qRegisterMetaType<Track*>();
-    qRegisterMetaType<Playlist>();
     qRegisterMetaType<Artist*>();
 
     qmlRegisterSingletonType<Core>(PACKAGE_NAME, 1, 0, "Core", &Core::qmlInstance);

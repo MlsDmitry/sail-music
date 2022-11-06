@@ -1,4 +1,4 @@
-#include "utils/Settings.h"
+#include "Utils/Settings.h"
 
 Settings::Settings(QObject *parent) :
     QSettings(

@@ -1,5 +1,5 @@
-#include "models/PlayListModel.h"
-#include "utils/commons.h"
+#include "Models/PlayListModel.h"
+#include "Utils/commons.h"
 
 PlayListModel::PlayListModel(QObject *parent) : QAbstractListModel(parent)
 {
@@ -48,27 +48,33 @@ PlayListModel::data(const QModelIndex &index, int role) const {
     return QVariant();
 }
 
-QString
-PlayListModel::makeUrl(const char *format, ...)
-{
-    QString url(MUSIC_API_URL);
+//QString
+//PlayListModel::makeUrl(const char *format, ...)
+//{
+//    QString url(MUSIC_API_URL);
 
-    va_list args;
-    va_start(args, format);
+//    va_list args;
+//    va_start(args, format);
 
-    QString url2 = QString().vsprintf(format, args);
+//    QString url2 = QString().vsprintf(format, args);
 
-    url.append(url2);
+//    url.append(url2);
 
-    va_end(args);
+//    va_end(args);
 
-    return url;
-}
+//    return url;
+//}
+
+//void
+//PlayListModel::sendTracksRequest()
+//{
+//    qDebug() << "NOT IMPLEMENTED";
+
+//}
 
 void
-PlayListModel::sendTracksRequest()
+PlayListModel::getTracks()
 {
-    qDebug() << "NOT IMPLEMENTED";
 
 }
 

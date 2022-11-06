@@ -13,11 +13,11 @@
 #include <QUrl>
 #include <QNetworkRequest>
 
-#include "utils/ApiRequest.h"
-#include "utils/Core.h"
-#include "units/Artist.h"
-#include "units/Album.h"
-#include "units/Track.h"
+#include "Utils/ApiRequest.h"
+#include "Utils/Core.h"
+#include "Models/ArtistModel.h"
+#include "Models/AlbumModel.h"
+#include "Models/TrackModel.h"
 
 
 class PlayListModel : public QAbstractListModel
@@ -42,13 +42,11 @@ public:
     virtual QVariant data(const QModelIndex &index, int role) const;
     virtual QHash<int, QByteArray> roleNames() const;
 
-    QString makeUrl(const char *format, ...);
-
     Q_INVOKABLE QVariant get(int idx);
     Q_INVOKABLE void setIndex(int idx);
     Q_INVOKABLE void prepareCurrentTrackToPlay();
 
-    Q_INVOKABLE virtual void sendTracksRequest();
+    Q_INVOKABLE virtual void getTracks();
 
 
 public slots:

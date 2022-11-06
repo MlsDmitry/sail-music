@@ -95,7 +95,7 @@ Page {
                         playButton.iconUrl = "image://theme/icon-m-play"
                         YaClient.stop();
                         if (radio.currentIndex + 1 == radio.rowCount() - 1) {
-                            radio.sendTracksRequest();
+                            radio.getTracks();
                         } else {
                             radio.setIndex(radio.currentIndex + 1);
                         }

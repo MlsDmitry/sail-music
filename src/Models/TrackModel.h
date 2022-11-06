@@ -9,10 +9,10 @@
 #include <QNetworkReply>
 #include <QThread>
 
-#include "utils/Cache.h"
-#include "utils/Core.h"
-#include "utils/ApiRequest.h"
-#include "units/Album.h"
+#include "Utils/Cache.h"
+#include "Utils/Core.h"
+#include "Utils/ApiRequest.h"
+#include "Models/AlbumModel.h"
 
 class Track : public QObject
 {
@@ -24,10 +24,6 @@ public:
     Q_PROPERTY(quint16 minBitrate MEMBER minBitrate)
 
     explicit Track(QObject *parent = nullptr);
-
-    QString id;
-    QString title;
-    QString coverUrl;
 
     Q_INVOKABLE void requestDownloadInfo();
     Q_INVOKABLE void requestFileDownloadInfo(QString bitrate);
@@ -48,6 +44,10 @@ signals:
     void downloadLinkReady(QString fileLink);
 
 public:
+    QString id;
+    QString title;
+    QString coverUrl;
+
     quint64 duration;
     quint64 totalPlayedSeconds;
     Album*      album;

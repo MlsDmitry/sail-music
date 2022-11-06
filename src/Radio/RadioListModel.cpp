@@ -6,11 +6,13 @@
 #include <QCryptographicHash>
 #include <QDataStream>
 
-#include "models/RadioListModel.h"
+#include "Radio/RadioListModel.h"
+#include "Utils/commons.h"
 
 RadioListModel::RadioListModel(QObject *parent) : PlayListModel(parent)
 {
     _currentIndex = -1;
+    _service = new RadioService();
 }
 
 void
@@ -46,7 +48,7 @@ RadioListModel::sendFeedbackRequest(RadioListModel::FeedbackTypes feedbackType)
     QJsonObject data;
     QNetworkRequest request;
     QDateTime currentDt = QDateTime::currentDateTime();
-    QUrl url(makeUrl(STATION_FEEDBACK, _station.toStdString().data()));
+    QUrl url(makeUrl(MUSIC_API_URL, STATION_FEEDBACK, _station.toStdString().data()));
 
     QString currentDtStr = currentDt.toString("yyyy-MM-ddThh:mm:ss.zzzZ");
     url.setQuery("batch-id=" + _batchId);
@@ -104,82 +106,20 @@ RadioListModel::changeStation(QString station)
 
 
 void
-RadioListModel::sendTracksRequest()
+RadioListModel::getTracks()
 {
-    QNetworkRequest request;
-    QUrlQuery query;
-    QUrl url(makeUrl(STATION_TRACKS, _station.toStdString().data()));
+    _service->requestTracks(_station);
 
-    query.addQueryItem("settings2", "true");
+    connect(_service, &RadioService::tracksReceived, this, [=](QJsonValue& data){
+        QVariantList newTracks = parseTracks(data);
 
-    url.setQuery(query);
+        beginInsertRows(QModelIndex(), rowCount(), rowCount() + newTracks.count());
+        _tracks.append(newTracks);
+        endInsertRows();
 
-    request.setUrl(url);
-
-    this->_transport->apiGetRequest(request);
-
-    connect(this->_transport, &ApiRequest::dataReady, this, &PlayListModel::handleTracksResponse);
-
+        emit tracksReceived();
+    });
 }
-
-//void
-//RadioListModel::handleTracksResponse(QJsonValue& data)
-//{
-////    qDebug() << data.toString();
-//    QString dataStr = data.toString();
-//    qint64 dataHash = hash(dataStr);
-
-//    if (dataHash == _previousTracksValue) {
-//        return;
-//    } else {
-//        _previousTracksValue = dataHash;
-//    }
-
-//    QJsonObject qjo = data.toObject();
-//    QJsonArray tracks = qjo["sequence"].toArray();
-//    _batchId = qjo["batchId"].toString();
-//    // beginInsertRows(QModelIndex(), m_playList.count(), m_playList.count()+tracks.count()-1);
-
-//    foreach (const QJsonValue& value, tracks) {
-//        QJsonObject trackObject = value.toObject()["track"].toObject();
-//        QJsonObject albumObject = trackObject["albums"].toArray().at(0).toObject();
-
-//        Album* album = new Album;
-//        album->id = QString::number(albumObject.value("id").toInt());
-//        album->title = albumObject.value("title").toString();
-//        album->coverUrl = "https://" + albumObject.value("coverUri").toString();
-
-//        Track* newTrack = new Track;
-//        newTrack->id = trackObject["id"].toString();
-//        newTrack->title = trackObject["title"].toString();
-//        newTrack->album = album;
-
-//        newTrack->coverUrl = "https://" + trackObject["coverUri"].toString();
-////        newTrack->cacheTrackCover("1000x1000");
-
-//        for (QJsonValue&& artistObject : trackObject["artists"].toArray()) {
-//            Artist* artist = new Artist;
-//            artist->id = QString::number(artistObject.toObject()["id"].toInt());
-//            artist->name = artistObject.toObject()["name"].toString();
-//            artist->avatarUrl = "https://" + artistObject.toObject()["cover"].toObject()["uri"].toString();
-//            newTrack->artists.append(QVariant::fromValue(artist));
-//        }
-
-//        beginInsertRows(QModelIndex(), rowCount(), rowCount());
-//        _tracks.append(QVariant::fromValue(newTrack));
-//        endInsertRows();
-
-//    }
-
-//    // weird
-//    if (tracks.count() != 0) {
-//        qDebug() << "Total tracks " << rowCount();
-//        qDebug() << "Current index is " << _currentIndex << ". Changing to -1...";
-//        _currentIndex = -1;
-//        qDebug() << "Index now " << _currentIndex;
-//        emit tracksReceived();
-//    }
-//}
 
 void
 RadioListModel::sendSettingsRequest(QString moodEnergy, QString diversity, QString language, QString type)

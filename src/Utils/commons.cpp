@@ -1,6 +1,8 @@
 #include <QByteArray>
 #include <QCryptographicHash>
 #include <QDataStream>
+#include <QString>
+
 
 #include "commons.h"
 
@@ -16,4 +18,21 @@ qint64 hash(const QString & str)
     qint64 a, b;
     stream >> a >> b;
     return a ^ b;
+}
+
+QString
+makeUrl(const char * baseUrl, const char *format, ...)
+{
+    QString url(baseUrl);
+
+    va_list args;
+    va_start(args, format);
+
+    QString url2 = QString().vsprintf(format, args);
+
+    url.append(url2);
+
+    va_end(args);
+
+    return url;
 }

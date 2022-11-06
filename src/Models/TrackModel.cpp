@@ -5,7 +5,7 @@
 #include <QCryptographicHash>
 #include <QThread>
 
-#include "units/Track.h"
+#include "Models/TrackModel.h"
 
 Track::Track(QObject *parent) : QObject(parent)
 {

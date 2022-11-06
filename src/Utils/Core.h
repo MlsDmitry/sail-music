@@ -9,7 +9,7 @@
 #include <QSslError>
 #include <QByteArray>
 
-#include "utils/Settings.h"
+#include "Utils/Settings.h"
 
 #define MUSIC_API_URL   "https://api.music.yandex.net"
 
