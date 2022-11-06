@@ -19,6 +19,9 @@ class Track : public QObject
     Q_OBJECT
 public:
     Q_PROPERTY(QString coverUrl MEMBER coverUrl NOTIFY coverUrlUpdated)
+    Q_PROPERTY(QString title MEMBER title)
+    Q_PROPERTY(quint16 maxBitrate MEMBER maxBitrate)
+    Q_PROPERTY(quint16 minBitrate MEMBER minBitrate)
 
     explicit Track(QObject *parent = nullptr);
 
@@ -50,11 +53,13 @@ public:
     Album*      album;
     QVariantList artists;
 
+    QVariantMap downloadInfos;
+    quint16     minBitrate;
+    quint16     maxBitrate;
 private:
     Cache*      _cache;
     QThread*    _cacheThread;
     QString     _lastBitrate;
-    QVariantMap _downloadInfos;
     QVariantMap _downloadDirectLinks;
     ApiRequest* _transport;
 

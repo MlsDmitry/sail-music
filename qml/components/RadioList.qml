@@ -20,12 +20,13 @@ Item {
         id: radioList
         anchors {
             top: radioListLabel.bottom
+            topMargin: Theme.paddingLarge
         }
 
         width: parent.width
         height: parent.height
 
-        spacing: 10
+        spacing: 50
 
 
         orientation: ListView.Horizontal
@@ -65,16 +66,28 @@ Item {
         }
 
         delegate: Item {
+            property bool backgroundClicked: false
+
             id: someItem
             width: radioList.width / 2
             height: parent.height
 
             Rectangle {
+
                 id: itemContainer
                 anchors.fill: parent
 
                 anchors.centerIn: parent
-                color: radioColor
+                color: Theme.darkPrimaryColor
+                opacity: 0.7
+
+                radius: 30
+
+                Behavior on opacity {
+                    FadeAnimator {
+                        duration: 30
+                    }
+                }
 
                 MouseArea {
                     id: mouseArea
@@ -83,6 +96,16 @@ Item {
                         radio.changeStation(station);
                         radio.sendTracksRequest();
 
+                    }
+                    onPressed: {
+                        itemContainer.opacity = 1.0;
+                        cover.width = cover.width - 10;
+                        cover.height = cover.height - 10;
+                    }
+                    onReleased: {
+                        itemContainer.opacity = 0.7;
+                        cover.width = cover.width + 10;
+                        cover.height = cover.height + 10;
                     }
                 }
 

@@ -65,7 +65,7 @@ ApiRequest::thirdPartyGetRequest(QNetworkRequest& request, bool includeAuthoriza
 }
 
 void
-ApiRequest::thirdPartyPostRequest(QNetworkRequest& request, QByteArray& data)
+ApiRequest::thirdPartyPostRequest(QNetworkRequest& request, QByteArray& data, bool includeAuthorization)
 {
     QString accessToken = _settings.value("accessToken").toString();
 
@@ -74,7 +74,7 @@ ApiRequest::thirdPartyPostRequest(QNetworkRequest& request, QByteArray& data)
     request.setHeader(QNetworkRequest::UserAgentHeader, "Yandex-Music-API");
     request.setRawHeader("X-Yandex-Music-Client", "YandexMusicAndroid/23020251");
 
-    if (accessToken.size() > 0) {
+    if (accessToken.size() > 0 && includeAuthorization) {
         request.setRawHeader("Authorization", QString("OAuth %1").arg(accessToken).toLatin1());
     }
 

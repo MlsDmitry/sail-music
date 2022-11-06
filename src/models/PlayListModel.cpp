@@ -123,8 +123,11 @@ PlayListModel::handleTracksResponse(QJsonValue& data)
     // weird
     if (tracks.count() != 0) {
         qDebug() << "Total tracks " << rowCount();
-        qDebug() << "Current index is " << _currentIndex << ". Changing to -1...";
-        _currentIndex = -1;
+//        qDebug() << "Current index is " << _currentIndex << ". Changing to -1...";
+        if (rowCount() == 5)
+            _currentIndex = -1;
+        else
+            _currentIndex = rowCount() - tracks.count();
         qDebug() << "Index now " << _currentIndex;
         emit tracksReceived();
     }
@@ -155,6 +158,7 @@ PlayListModel::setIndex(int idx)
         qDebug() << "Set _currentIndex to " << idx;
         _currentIndex = idx;
         _currentTrack = _tracks.at(idx).value<Track*>();
+        emit currentTrackUpdated();
     }
 }
 
@@ -170,7 +174,7 @@ PlayListModel::prepareCurrentTrackToPlay()
 void
 PlayListModel::trackDownloadInfoReady()
 {
-    _currentTrack->requestFileDownloadInfo("320");
+    _currentTrack->requestFileDownloadInfo(QString::number(_currentTrack->maxBitrate));
 
     connect(_currentTrack, &Track::downloadLinkReady, this, &PlayListModel::currentTrackLinkReady);
 }

@@ -15,6 +15,7 @@
 YaClient::YaClient(QObject *parent) : QObject(parent)
 {
     _transport = new ApiRequest();
+    _player = new QMediaPlayer();
 
 
 //    QNetworkProxy proxy(QNetworkProxy::HttpProxy, "192.168.1.48", 8081);
@@ -77,7 +78,7 @@ YaClient::requestAuth(QString username, QString password, QString captchaAnswer)
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
 
-    _transport->thirdPartyPostRequest(request, data);
+    _transport->thirdPartyPostRequest(request, data, false);
 
     connect(_transport, &ApiRequest::thirdPartyDataReady, this, &YaClient::handleAuthResponse);
 
@@ -167,9 +168,34 @@ void delay( int millisecondsToWait )
 void
 YaClient::play(QString url)
 {
-    QMediaPlayer *player = new QMediaPlayer();
+    if (_player->state() == QMediaPlayer::PlayingState)
+        _player->stop();
 
-    player->setMedia(QUrl(url));
-    player->setVolume(50);
-    player->play();
+    _player->setMedia(QUrl(url));
+    _player->setVolume(50);
+    _player->play();
+}
+
+void
+YaClient::continuePlay()
+{
+    _player->play();
+}
+
+void
+YaClient::pause()
+{
+    _player->pause();
+}
+
+QMediaPlayer::State
+YaClient::playState()
+{
+    return _player->state();
+}
+
+void
+YaClient::stop()
+{
+    _player->stop();
 }

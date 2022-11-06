@@ -26,7 +26,13 @@ else()
     set(SANITIZER "none")
 endif()
 
-target_include_directories(sail-music PRIVATE "src")
+set(JSON_DTO_TEST OFF)
+set(JSON_DTO_SAMPLE OFF)
+set(JSON_DTO_INSTALL OFF)
+
+add_subdirectory("../json_dto/dev" "build")
+
+target_include_directories(sail-music PRIVATE "src" "../json_dto/dev/rapidjson/include" "../json_dto/dev")
 
 target_compile_definitions(sail-music PRIVATE
     $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>
@@ -40,6 +46,7 @@ target_link_libraries(sail-music
     Qt5::Multimedia
     Qt5::Xml
     ${SAILFISH_LDFLAGS}
+    json-dto
 )
 
 install(TARGETS sail-music

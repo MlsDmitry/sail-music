@@ -26,7 +26,7 @@ class PlayListModel : public QAbstractListModel
 public:
     Q_PROPERTY(QString station MEMBER _station)
     Q_PROPERTY(qint64 currentIndex MEMBER _currentIndex)
-    Q_PROPERTY(Track* currentTrack MEMBER _currentTrack)
+    Q_PROPERTY(Track* currentTrack MEMBER _currentTrack NOTIFY currentTrackUpdated)
 
     explicit PlayListModel(QObject *parent = nullptr);
 
@@ -59,6 +59,7 @@ public slots:
 signals:
     void currentTrackLinkReady(QString url);
     void tracksReceived();
+    void currentTrackUpdated();
 
 protected:
     ApiRequest* _transport;

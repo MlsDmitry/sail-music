@@ -17,7 +17,7 @@ public:
     explicit ApiRequest(QObject *parent = nullptr);
 
     void thirdPartyGetRequest(QNetworkRequest& request, bool includeAuthorization=true);
-    void thirdPartyPostRequest(QNetworkRequest& request, QByteArray& data);
+    void thirdPartyPostRequest(QNetworkRequest& request, QByteArray& data, bool includeAuthorization=true);
     void apiGetRequest(QNetworkRequest& request);
     void apiPostRequest(QNetworkRequest& request, QByteArray& query);
 

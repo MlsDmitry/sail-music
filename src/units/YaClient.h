@@ -8,6 +8,7 @@
 #include <QJSEngine>
 #include <QNetworkAccessManager>
 #include <QDateTime>
+#include <QMediaPlayer>
 
 #include "utils/Settings.h"
 #include "utils/ApiRequest.h"
@@ -38,6 +39,15 @@ public:
 
     Q_ENUM(Error)
 
+    enum State
+    {
+        StoppedState,
+        PlayingState,
+        PausedState
+    };
+
+    Q_ENUM(State)
+
     static QObject *qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine)
     {
         Q_UNUSED(engine);
@@ -48,7 +58,11 @@ public:
 
     Q_INVOKABLE void requestAuth(QString username, QString password, QString captchaAnswer="");
 
+    Q_INVOKABLE void continuePlay();
     Q_INVOKABLE void play(QString url);
+    Q_INVOKABLE void pause();
+    Q_INVOKABLE void stop();
+    Q_INVOKABLE QMediaPlayer::State playState();
 
 public slots:    
     void replySSLErrors(QNetworkReply *reply, QList<QSslError> errors);
@@ -79,6 +93,8 @@ private:
     QString _userId;
     QString _token;
     QDateTime _ttl;
+
+    QMediaPlayer* _player;
 
 public:
     ApiRequest* _transport;

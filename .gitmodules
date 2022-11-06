@@ -1,0 +1,3 @@
+[submodule "include/json_dto"]
+	path = include/json_dto
+	url = https://github.com/Stiffstream/json_dto

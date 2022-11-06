@@ -13,6 +13,9 @@ Track::Track(QObject *parent) : QObject(parent)
     _cache = new Cache;
     _cacheThread = new QThread();
 
+    minBitrate = -1; // cause it's quint16 -1 will be the maximum value
+    maxBitrate = 0;
+
     connect(_cache, &Cache::imageSaved, this, &Track::trackCoverSaved);
 
     _cache->moveToThread(_cacheThread);
@@ -32,6 +35,11 @@ Track::requestDownloadInfo()
 void
 Track::handleDownloadInfoResponse(QJsonValue& data)
 {
+    if (downloadInfos.count() > 0) {
+        emit downloadInfoReady();
+        return;
+    }
+
     qDebug() << "[+] Fetching download links.";
     for(QJsonValue&& downloadInfo : data.toArray()) {
         QJsonObject downloadInfoObject = downloadInfo.toObject();
@@ -39,9 +47,17 @@ Track::handleDownloadInfoResponse(QJsonValue& data)
         if (downloadInfoObject.value("codec").toString() != "mp3")
             continue;
 
-        _downloadInfos.insert(QString::number(downloadInfoObject.value("bitrateInKbps").toInt()), downloadInfoObject.value("downloadInfoUrl").toString());
+        int bitrate = downloadInfoObject.value("bitrateInKbps").toInt();
 
-        qDebug() << "\tBitrate: " << QString::number(downloadInfoObject.value("bitrateInKbps").toInt());
+        if (minBitrate > bitrate)
+            minBitrate = bitrate;
+
+        if (maxBitrate < bitrate)
+            maxBitrate = bitrate;
+
+        downloadInfos.insert(QString::number(bitrate), downloadInfoObject.value("downloadInfoUrl").toString());
+
+        qDebug() << "\tBitrate: " << QString::number(bitrate);
         qDebug() << "\t link: " << downloadInfoObject.value("downloadInfoUrl").toString();
 
     }
@@ -54,7 +70,11 @@ Track::handleDownloadInfoResponse(QJsonValue& data)
 void
 Track::requestFileDownloadInfo(QString bitrate)
 {
-    QString downloadUrl = _downloadInfos.value(bitrate, QString()).toString();
+    if (_lastBitrate == bitrate) {
+        emit downloadLinkReady(_downloadDirectLinks.value(bitrate).toString());
+        return;
+    }
+    QString downloadUrl = downloadInfos.value(bitrate, QString()).toString();
 
     if (downloadUrl.length() == 0)
         return;
@@ -74,7 +94,10 @@ void
 Track::handleFileDownloadInfoResponse(QNetworkReply* reply)
 {
     QVariantMap downloadInfo;
-    QString signature;
+    QString signature;    Q_INVOKABLE void requestDownloadInfo();
+    Q_INVOKABLE void requestFileDownloadInfo(QString bitrate);
+    Q_INVOKABLE QString getDirectDownloadLink(QString bitrate);
+    void cacheTrackCover(QString imageResolution);
     QByteArray data = reply->readAll();
     QXmlStreamReader reader(data);
 
