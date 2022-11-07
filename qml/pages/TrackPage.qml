@@ -82,7 +82,7 @@ Page {
                         } else if (YaClient.playState() === YaClient.PausedState) {
                             YaClient.continuePlay();
                         } else {
-                            YaClient.play(radio.currentTrack.getDirectDownloadLink("320"));
+                            YaClient.play(radio.currentTrack.getDirectDownloadLink(radio.currentTrack.getMaxBitrateAvailable()));
                         }
                     }
                 }
@@ -110,22 +110,21 @@ Page {
                     if (radio.rowCount() > 0 && radio.currentIndex === -1) {
                         radio.setIndex(0);
                     }
-                    checkSetCurrenTrack();
                 }
 
                 onCurrentTrackUpdated: {
                     console.log("Here!!!")
+                    radio.prepareCurrentTrackToPlay();
                     checkSetCurrenTrack();
                 }
 
                 onFeedbackReceived: {
                     console.log("Preparing current track...");
-//                    radio.prepareCurrentTrackToPlay();
                 }
 
                 onCurrentTrackLinkReady: {
                     console.log("Current track is ready to play");
-//                    YaClient.play(url);
+                    console.log(url);
 
                 }
             }
@@ -148,7 +147,7 @@ Page {
             currentSongTitle = title;
         }
 
-        radio.prepareCurrentTrackToPlay()
+//        radio.prepareCurrentTrackToPlay()
 //        console.log("Preparing current track...");
         console.log("Done!")
     }

@@ -1,3 +1,9 @@
+#include "Models/TrackModel.h"
+#include "Services/TrackService.h"
+#include "Adapters/TrackAdapter.h"
+
+#include <functional>
+
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QDomDocument>
@@ -6,9 +12,6 @@
 #include <QThread>
 #include <QDebug>
 
-#include "Models/TrackModel.h"
-#include "Services/TrackService.h"
-#include "Adapters/TrackAdapter.h"
 
 Track::Track(QObject *parent) : QObject(parent)
 {
@@ -16,7 +19,7 @@ Track::Track(QObject *parent) : QObject(parent)
     //    _cache = new Cache;
     //    _cacheThread = new QThread();
 
-    minBitrate = -1; // cause it's quint16 -1 will be the maximum value
+    //    minBitrate = -1; // cause it's quint16 -1 will be the maximum value
     maxBitrate = 0;
 
     //    connect(_cache, &Cache::imageSaved, this, &Track::trackCoverSaved);
@@ -27,30 +30,13 @@ Track::Track(QObject *parent) : QObject(parent)
 void
 Track::getTrackDownloadInfo()
 {
-    if (downloadInfos.count() > 0) {
-        qDebug() << "Found cached download INFO.";
-        emit downloadInfoReady();
-        return;
-    }
+
     _service->requestDownloadInfo(id);
 
-    //    connect(_service, &TrackService::trackDownloadInfoReady, this, [&](QJsonValue& data) {
-    //        downloadInfos = parseDownloadInfo(data);
-    //        emit downloadInfoReady();
-    //    }, Qt::UniqueConnection);
-    connect(_service, &TrackService::trackDownloadInfoReady, this, &Track::handleDownloadInfoResponse, Qt::UniqueConnection);
-}
-
-void
-Track::handleDownloadInfoResponse(QJsonValue& data)
-{
-    if (downloadInfos.count() > 0) {
+    connect(_service, &TrackService::trackDownloadInfoReady, this, [=](QJsonValue& data) {
+        downloadInfos = parseDownloadInfo(data);
         emit downloadInfoReady();
-        return;
-    }
-
-    downloadInfos = parseDownloadInfo(data);
-    emit downloadInfoReady();
+    }, Qt::UniqueConnection);
 }
 
 void
@@ -58,71 +44,29 @@ Track::getTrackFileDownloadLink(QString bitrate)
 {
     Q_ASSERT(downloadInfos.contains(bitrate));
 
-    if (_downloadDirectLinks.contains(bitrate)) {
-        qDebug() << "Found cached download LINK.";
-        emit downloadLinkReady(getDirectDownloadLink(bitrate));
-        return;
-    }
-
     _service->requestFileDownloadInfo(downloadInfos.value(bitrate).toString());
 
-//    connect(_service, &TrackService::trackFileDownloadInfoReady, this, [&](QByteArray data) {
-//        track_file_download_info info = parseTrackFileDownloadInfo(data);
+    connect(_service, &TrackService::trackFileDownloadInfoReady, this, [=](QByteArray data) {
+        track_file_download_info info = parseTrackFileDownloadInfo(data);
 
-//        QString signature = QString(
-//                    QCryptographicHash::hash(
-//                        (("XGRlBW9FXlekgbPrRHuSiA" + info.path.mid(1) + info.signature)).toUtf8(),
-//                        QCryptographicHash::Md5
-//                        ).toHex()
-//                    );
+        QString signature = QString(
+                    QCryptographicHash::hash(
+                        (("XGRlBW9FXlekgbPrRHuSiA" + info.path.mid(1) + info.signature)).toUtf8(),
+                        QCryptographicHash::Md5
+                        ).toHex()
+                    );
 
-//        QString directDownloadLink = "https://" + info.host + "/get-mp3/" + signature + "/" + info.ts + info.path;
-
-
-//        //        _downloadDirectLinks.insert(bitrate, directDownloadLink);
-//        QVariantMap links;
-
-//        links.insert(bitrate, directDownloadLink);
-
-//        _downloadDirectLinks = links;
-
-//        qDebug() << "Got link! " << directDownloadLink;
-
-//        emit downloadLinkReady(directDownloadLink);
-//    }, Qt::UniqueConnection);
-
-    connect(_service, &TrackService::trackFileDownloadInfoReady, this, &Track::handleTrackFileDownload, Qt::UniqueConnection);
-
-}
-
-void
-Track::handleTrackFileDownload(QByteArray data)
-{
-    track_file_download_info info = parseTrackFileDownloadInfo(data);
-
-    if (info.host == "")
-        return;
-
-    QString signature = QString(
-                QCryptographicHash::hash(
-                    (("XGRlBW9FXlekgbPrRHuSiA" + info.path.mid(1) + info.signature)).toUtf8(),
-                    QCryptographicHash::Md5
-                    ).toHex()
-                );
-
-    QString directDownloadLink = "https://" + info.host + "/get-mp3/" + signature + "/" + info.ts + info.path;
+        QString directDownloadLink = "https://" + info.host + "/get-mp3/" + signature + "/" + info.ts + info.path;
 
 
-    //        _downloadDirectLinks.insert(bitrate, directDownloadLink);
-    QVariantMap links;
+        QVariantMap links;
 
-//    links.insert("320", directDownloadLink);
+        _downloadDirectLinks.insert(bitrate, directDownloadLink);
 
-    _downloadDirectLinks.insert("320", directDownloadLink);
+        qDebug() << "Got link! " << directDownloadLink;
 
-    qDebug() << "Got link! " << directDownloadLink;
-
-    emit downloadLinkReady(directDownloadLink);
+        emit downloadLinkReady(directDownloadLink);
+    }, Qt::UniqueConnection);
 }
 
 
@@ -130,6 +74,22 @@ QString
 Track::getDirectDownloadLink(QString bitrate)
 {
     return _downloadDirectLinks.value(bitrate, QString()).toString();
+}
+
+QString
+Track::getMaxBitrateAvailable()
+{
+    if (maxBitrate == 0) {
+        QList<QString> bitratesStr = downloadInfos.keys();
+
+        for (QString& bitrateStr : bitratesStr) {
+            if (bitrateStr.toUInt() > maxBitrate)
+                maxBitrate = bitrateStr.toUInt();
+        }
+    }
+
+    return QString::number(maxBitrate);
+
 }
 
 

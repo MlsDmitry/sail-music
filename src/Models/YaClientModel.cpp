@@ -171,8 +171,10 @@ YaClient::play(QString url)
     if (_player->state() == QMediaPlayer::PlayingState)
         _player->stop();
 
+    qDebug() << "Playing " << url;
+
     _player->setMedia(QUrl(url));
-    _player->setVolume(50);
+    _player->setVolume(100);
     _player->play();
 }
 

@@ -17,4 +17,4 @@ OrganizationName=org.myorg
 # ApplicationName does not have to be identical to Name
 ApplicationName=sail-music
 # Add the required permissions here
-Permissions=
+Permissions=Internet;Audio

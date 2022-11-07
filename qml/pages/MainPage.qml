@@ -70,7 +70,6 @@ Page {
 
 
     }
-
     onStatusChanged: {
         if (status === PageStatus.Active) {
             console.log(radioListModel.currentIndex);

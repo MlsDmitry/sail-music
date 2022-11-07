@@ -20,25 +20,16 @@ class Track : public QObject
 public:
     Q_PROPERTY(QString coverUrl MEMBER coverUrl NOTIFY coverUrlUpdated)
     Q_PROPERTY(QString title MEMBER title)
-    Q_PROPERTY(quint16 maxBitrate MEMBER maxBitrate)
-    Q_PROPERTY(quint16 minBitrate MEMBER minBitrate)
 
     explicit Track(QObject *parent = nullptr);
 
     Q_INVOKABLE void getTrackDownloadInfo();
     Q_INVOKABLE void getTrackFileDownloadLink(QString bitrate);
     Q_INVOKABLE QString getDirectDownloadLink(QString bitrate);
+    Q_INVOKABLE QString getMaxBitrateAvailable();
 //    void cacheTrackCover(QString imageResolution);
 
 
-public slots:
-    void handleDownloadInfoResponse(QJsonValue& data);
-    void handleTrackFileDownload(QByteArray data);
-//    void handleFileDownloadInfoResponse(QNetworkReply* reply);
-//    void handleDownloadInfoResponse(QJsonValue& data);
-
-//    void trackCoverSaved(QString imagePath, QString urlHash);
-//    void trackCoverDataReady(QNetworkReply* reply);
 
 signals:
     void coverUrlUpdated();
@@ -56,8 +47,8 @@ public:
     QVariantList artists;
 
     QVariantMap downloadInfos;
-    quint16     minBitrate;
-    quint16     maxBitrate;
+//    quint16     minBitrate;
+    quint16 maxBitrate;
 private:
     Cache*      _cache;
     QThread*    _cacheThread;
