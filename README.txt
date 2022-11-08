@@ -74,6 +74,7 @@ representation of JSON data. The idea is simple. Define struct representing
 JSON data from response or for request and then call
 json_dto::from_json<T>(jsonStringToParse). Key things to consider when
 writing own Adapter:
+
     * Adapter should hide all type conversions from Qt to standart
       types(json_dto only works with std types) inside it. 
 
