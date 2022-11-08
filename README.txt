@@ -69,7 +69,7 @@ An abstraction layer responsible for parsing data from one type and
 converting it to another.
 
 Description: 
-In this project I use json_dto library which allows define C struct
+In this project I use json_dto library which allows to define C struct
 representation of JSON data. The idea is simple. Define struct representing
 JSON data from response or for request and then call
 json_dto::from_json<T>(jsonStringToParse). Key things to consider when
