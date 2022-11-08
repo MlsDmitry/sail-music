@@ -93,7 +93,7 @@ Check out src/Adapters/TrackAdapter.{h, cpp} files.
 Services
 
 Idea:
-An abstraction level responsible for network requests.
+An abstraction layer responsible for network requests.
 
 Description:
 I use Services as a way to shrink Model's code and hide some
