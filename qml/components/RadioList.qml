@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import org.k_bsp.sailmusic 1.0
 
 Item {
 
@@ -93,6 +94,7 @@ Item {
                     id: mouseArea
                     anchors.fill: parent
                     onClicked: {
+                        YaClient.currentPlaylist = radio;
                         radio.changeStation(station);
                         radio.getTracks();
 
