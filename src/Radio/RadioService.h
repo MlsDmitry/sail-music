@@ -18,6 +18,7 @@ public:
     explicit RadioService(QObject *parent = nullptr);
 
     virtual void requestTracks(QString station);
+    void requestFeedback(QString station, QString batchId, QString& feedbackData);
 signals:
     void tracksReceived(QJsonValue& data);
 };

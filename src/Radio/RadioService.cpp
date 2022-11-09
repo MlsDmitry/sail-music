@@ -30,3 +30,22 @@ RadioService::requestTracks(QString station)
     connect(this->_transport, &ApiRequest::dataReady, this, &RadioService::tracksReceived, Qt::UniqueConnection);
 
 }
+
+
+void
+RadioService::requestFeedback(QString station, QString batchId, QString& feedbackData)
+{
+    QUrl url(makeUrl(MUSIC_API_URL, STATION_FEEDBACK, station.toStdString().data()));
+    QNetworkRequest request;
+    QUrlQuery query;
+
+    query.addQueryItem("batch-id", batchId);
+
+    url.setQuery(query);
+
+    request.setUrl(url);
+
+    this->_transport->apiPostRequest(request, feedbackData.toUtf8());
+
+
+}

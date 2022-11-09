@@ -19,24 +19,24 @@ void
 RadioListModel::sendPlayAudioRequest()
 {
 
-//    QUrlQuery query;
-//    Settings settings;
-//    QDateTime current = QDateTime::currentDateTime();
-//    QString curdt = current.toString("yyyy-MM-ddThh:mm:ss.zzzZ");
-//    QString userId = settings.value("userId").toString();
-//    query.addQueryItem("uid", userId);
-//    query.addQueryItem("client-now", curdt);
-//    query.addQueryItem("from-cache", "false");
-//    query.addQueryItem("track-id", _currentTrack->id);
-//    query.addQueryItem("track-length-seconds", QString::number(_currentTrack->duration));
-//    query.addQueryItem("end-position-seconds", QString::number(_currentTrack->duration));
-//    query.addQueryItem("from", "mobile-home-rup_main-user-onyourwave-default");
-//    query.addQueryItem("album-id", _currentTrack->blockSignals()));
-//    query.addQueryItem("play-id", "79CFB84C-4A0B-4B31-8954-3006C0BD9274");
-//    query.addQueryItem("timestamp", curdt);
-//    query.addQueryItem("total-played-seconds", QString::number(m_playList.at(m_currentIndex)->duration));
-//    qDebug() << query.toString();
-//    m_api->makeApiPostRequest("/play-audio?" + query.toString(), QString(""));
+    //    QUrlQuery query;
+    //    Settings settings;
+    //    QDateTime current = QDateTime::currentDateTime();
+    //    QString curdt = current.toString("yyyy-MM-ddThh:mm:ss.zzzZ");
+    //    QString userId = settings.value("userId").toString();
+    //    query.addQueryItem("uid", userId);
+    //    query.addQueryItem("client-now", curdt);
+    //    query.addQueryItem("from-cache", "false");
+    //    query.addQueryItem("track-id", _currentTrack->id);
+    //    query.addQueryItem("track-length-seconds", QString::number(_currentTrack->duration));
+    //    query.addQueryItem("end-position-seconds", QString::number(_currentTrack->duration));
+    //    query.addQueryItem("from", "mobile-home-rup_main-user-onyourwave-default");
+    //    query.addQueryItem("album-id", _currentTrack->blockSignals()));
+    //    query.addQueryItem("play-id", "79CFB84C-4A0B-4B31-8954-3006C0BD9274");
+    //    query.addQueryItem("timestamp", curdt);
+    //    query.addQueryItem("total-played-seconds", QString::number(m_playList.at(m_currentIndex)->duration));
+    //    qDebug() << query.toString();
+    //    m_api->makeApiPostRequest("/play-audio?" + query.toString(), QString(""));
 }
 
 
@@ -45,39 +45,38 @@ void
 RadioListModel::sendFeedbackRequest(RadioListModel::FeedbackTypes feedbackType)
 {
     QString type;
-    QJsonObject data;
-    QNetworkRequest request;
-    QDateTime currentDt = QDateTime::currentDateTime();
-    QUrl url(makeUrl(MUSIC_API_URL, STATION_FEEDBACK, _station.toStdString().data()));
-
-    QString currentDtStr = currentDt.toString("yyyy-MM-ddThh:mm:ss.zzzZ");
-    url.setQuery("batch-id=" + _batchId);
-    request.setUrl(url);
-
-
 
     switch (feedbackType) {
     case RadioStarted:
-        data.insert("type", RADIO_STARTED);
+        type = RADIO_STARTED;
         break;
     case TrackFinished:
-        data.insert("type", TRACK_FINISHED);
+        type = TRACK_FINISHED;
         break;
     case TrackStarted:
-        data.insert("type", TRACK_STARTED);
+        type = TRACK_STARTED;
         break;
     case Skip:
-        data.insert("type", SKIP);
+        type = SKIP;
     }
+    QString data;
 
-    data.insert("timestamp", currentDtStr);
+    if (_currentIndex == -1)
+        data = createFeedbackRequest(
+                _station,
+                type,
+                "0",
+                0
+                );
+    else
+        data = createFeedbackRequest(
+                _station,
+                type,
+                _currentTrack->id,
+                0
+                );
 
-    QString strFromObj = QJsonDocument(data).toJson(QJsonDocument::Compact).toStdString().c_str();
-    QByteArray dataEncoded = strFromObj.toUtf8();
-
-
-    this->_transport->apiPostRequest(request, dataEncoded);
-    connect(this->_transport, &ApiRequest::thirdPartyDataReady, this, &RadioListModel::handleFeedbackResponse, Qt::UniqueConnection);
+    _service->requestFeedback(_station, _batchId, data);
 }
 
 void
