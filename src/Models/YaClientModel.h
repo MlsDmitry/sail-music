@@ -12,6 +12,9 @@
 
 #include "Utils/Settings.h"
 #include "Utils/ApiRequest.h"
+#include "Services/YaClientService.h"
+#include "Models/PlayListModel.h"
+#include "Adapters/YaClientAdapter.h"
 
 #define AUTH_URL        "https://oauth.yandex.ru/token"
 #define API_URL         "https://api.music.yandex.net"
@@ -28,6 +31,7 @@ public:
     Q_PROPERTY(QString lastPassword MEMBER _lastPassword)
     Q_PROPERTY(YaClient::Error lastError MEMBER _lastError)
     Q_PROPERTY(QString lastErrorString MEMBER _lastErrorString)
+    Q_PROPERTY(PlayListModel* currentPlaylist MEMBER currentPlaylist)
 
     explicit YaClient(QObject *parent = nullptr);
 
@@ -95,8 +99,10 @@ private:
     QDateTime _ttl;
 
     QMediaPlayer* _player;
+    YaClientService* _service;
 
 public:
+    PlayListModel* currentPlaylist;
     ApiRequest* _transport;
 
 

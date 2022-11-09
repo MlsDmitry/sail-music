@@ -19,7 +19,7 @@ public:
     void thirdPartyGetRequest(QNetworkRequest& request, bool includeAuthorization=true);
     void thirdPartyPostRequest(QNetworkRequest& request, QByteArray& data, bool includeAuthorization=true);
     void apiGetRequest(QNetworkRequest& request);
-    void apiPostRequest(QNetworkRequest& request, QByteArray& query);
+    void apiPostRequest(QNetworkRequest& request, QByteArray query);
 
 public slots:
     void replySSLErrors(QNetworkReply *reply, QList<QSslError> errors);

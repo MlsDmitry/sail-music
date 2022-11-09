@@ -20,6 +20,7 @@ class Track : public QObject
 public:
     Q_PROPERTY(QString coverUrl MEMBER coverUrl NOTIFY coverUrlUpdated)
     Q_PROPERTY(QString title MEMBER title)
+    Q_PROPERTY(Album* album MEMBER album)
 
     explicit Track(QObject *parent = nullptr);
 

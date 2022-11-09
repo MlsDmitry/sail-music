@@ -78,6 +78,18 @@ PlayListModel::getTracks()
 
 }
 
+int
+PlayListModel::getCurrentTrackId()
+{
+    return _currentTrack->id.toInt();
+}
+
+int
+PlayListModel::getCurrentAlbumId()
+{
+    return _currentTrack->album->id.toInt();
+}
+
 void
 PlayListModel::handleTracksResponse(QJsonValue& data)
 {

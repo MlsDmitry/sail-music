@@ -16,13 +16,7 @@ YaClient::YaClient(QObject *parent) : QObject(parent)
 {
     _transport = new ApiRequest();
     _player = new QMediaPlayer();
-
-
-//    QNetworkProxy proxy(QNetworkProxy::HttpProxy, "192.168.1.48", 8081);
-
-//    _transport->setProxy(proxy);
-
-
+    _service = new YaClientService();
 }
 
 
@@ -176,6 +170,17 @@ YaClient::play(QString url)
     _player->setMedia(QUrl(url));
     _player->setVolume(100);
     _player->play();
+
+    struct play_audio_request_info info;
+
+    info.track_id = currentPlaylist->getCurrentTrackId();
+    info.album_id = currentPlaylist->getCurrentAlbumId();
+
+
+    QString data = createPlayAudioRequestData(info);
+
+    _service->requestPlayAudio(data);
+
 }
 
 void

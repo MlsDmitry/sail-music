@@ -8,6 +8,10 @@ class Album : public QObject
 {
     Q_OBJECT
 public:
+    Q_PROPERTY(QString id MEMBER id)
+    Q_PROPERTY(QString title MEMBER title)
+    Q_PROPERTY(QString coverUrl MEMBER coverUrl)
+
     explicit Album(QObject *parent = nullptr);
 
     QString id;

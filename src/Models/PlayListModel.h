@@ -48,6 +48,8 @@ public:
 
     Q_INVOKABLE virtual void getTracks();
 
+    int getCurrentTrackId();
+    int getCurrentAlbumId();
 
 public slots:
     void handleTracksResponse(QJsonValue& reply);

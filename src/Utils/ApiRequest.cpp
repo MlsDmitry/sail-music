@@ -105,11 +105,13 @@ ApiRequest::apiGetRequest(QNetworkRequest& request)
 
 
 void
-ApiRequest::apiPostRequest(QNetworkRequest& request, QByteArray& data)
+ApiRequest::apiPostRequest(QNetworkRequest& request, QByteArray data)
 {
     QString accessToken = _settings.value("accessToken").toString();
 
-    request.setRawHeader("Authorization", "OAuth " + accessToken.toUtf8());
+    if (accessToken.size() > 0)
+        request.setRawHeader("Authorization", "OAuth " + accessToken.toUtf8());
+
     if (data.contains("{")) {
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     } else {
