@@ -50,6 +50,7 @@ public:
 
     int getCurrentTrackId();
     int getCurrentAlbumId();
+    void updateCurrentTrackPlayedSeconds(qint64 seconds);
 
 public slots:
     void handleTracksResponse(QJsonValue& reply);

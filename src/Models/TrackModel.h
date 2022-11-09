@@ -21,6 +21,8 @@ public:
     Q_PROPERTY(QString coverUrl MEMBER coverUrl NOTIFY coverUrlUpdated)
     Q_PROPERTY(QString title MEMBER title)
     Q_PROPERTY(Album* album MEMBER album)
+    Q_PROPERTY(qint64 duration MEMBER duration)
+    Q_PROPERTY(qint64 totalPlayedMs MEMBER totalPlayedMs);
 
     explicit Track(QObject *parent = nullptr);
 
@@ -42,8 +44,8 @@ public:
     QString title;
     QString coverUrl;
 
-    quint64 duration;
-    quint64 totalPlayedSeconds;
+    qint64 duration;
+    qint64 totalPlayedMs;
     Album*      album;
     QVariantList artists;
 

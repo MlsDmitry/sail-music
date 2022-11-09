@@ -66,13 +66,16 @@ public:
     Q_INVOKABLE void play(QString url);
     Q_INVOKABLE void pause();
     Q_INVOKABLE void stop();
+    Q_INVOKABLE void seek(qint64 position);
     Q_INVOKABLE QMediaPlayer::State playState();
 
 public slots:    
     void replySSLErrors(QNetworkReply *reply, QList<QSslError> errors);
     void handleAuthResponse(QNetworkReply* reply);
+    void audioPositionChanged(qint64 duration);
 
 signals:
+    void audioProgress(qint64 position);
     void error(YaClient::Error error);
     void authorized(QString userId, QString token);
 

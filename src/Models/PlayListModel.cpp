@@ -91,6 +91,12 @@ PlayListModel::getCurrentAlbumId()
 }
 
 void
+PlayListModel::updateCurrentTrackPlayedSeconds(qint64 ms)
+{
+    _currentTrack->totalPlayedMs = ms;
+}
+
+void
 PlayListModel::handleTracksResponse(QJsonValue& data)
 {
     QString dataStr = data.toString();

@@ -21,6 +21,8 @@ Track::Track(QObject *parent) : QObject(parent)
 
     //    minBitrate = -1; // cause it's quint16 -1 will be the maximum value
     maxBitrate = 0;
+    duration = 0;
+    totalPlayedMs = 0;
 
     //    connect(_cache, &Cache::imageSaved, this, &Track::trackCoverSaved);
 

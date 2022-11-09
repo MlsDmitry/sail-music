@@ -18,6 +18,7 @@ parseTrack(QJsonValue& data)
         trackModel->id = QString::fromStdString(track._id);
         trackModel->title = QString::fromStdString(track._title);
         trackModel->coverUrl = "https://" + QString::fromStdString(track._coverUrl);
+        trackModel->duration = track._durationMs;
 
         return trackModel;
 

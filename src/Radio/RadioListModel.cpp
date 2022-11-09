@@ -73,7 +73,7 @@ RadioListModel::sendFeedbackRequest(RadioListModel::FeedbackTypes feedbackType)
                 _station,
                 type,
                 _currentTrack->id,
-                0
+                _currentTrack->totalPlayedMs / 1000
                 );
 
     _service->requestFeedback(_station, _batchId, data);

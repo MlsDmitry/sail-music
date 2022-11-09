@@ -17,9 +17,16 @@ YaClient::YaClient(QObject *parent) : QObject(parent)
     _transport = new ApiRequest();
     _player = new QMediaPlayer();
     _service = new YaClientService();
+
+    connect(_player, &QMediaPlayer::positionChanged, this, &YaClient::audioPositionChanged);
 }
 
-
+void
+YaClient::audioPositionChanged(qint64 position)
+{
+    currentPlaylist->updateCurrentTrackPlayedSeconds(position);
+    emit audioProgress(position);
+}
 void YaClient::replySSLErrors(QNetworkReply *reply, QList<QSslError> errors)
 {
     QList<QSslError> ignoreErrors;
@@ -205,4 +212,10 @@ void
 YaClient::stop()
 {
     _player->stop();
+}
+
+void
+YaClient::seek(qint64 position)
+{
+    _player->setPosition(position);
 }
