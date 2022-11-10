@@ -19,6 +19,7 @@ YaClient::YaClient(QObject *parent) : QObject(parent)
     _service = new YaClientService();
 
     connect(_player, &QMediaPlayer::positionChanged, this, &YaClient::audioPositionChanged);
+    connect(_player, &QMediaPlayer::stateChanged, this, &YaClient::audioStateChanged);
 }
 
 void
@@ -178,15 +179,15 @@ YaClient::play(QString url)
     _player->setVolume(100);
     _player->play();
 
-    struct play_audio_request_info info;
+//    struct play_audio_request_info info;
 
-    info.track_id = currentPlaylist->getCurrentTrackId();
-    info.album_id = currentPlaylist->getCurrentAlbumId();
+//    info.track_id = currentPlaylist->getCurrentTrackId();
+//    info.album_id = currentPlaylist->getCurrentAlbumId();
 
 
-    QString data = createPlayAudioRequestData(info);
+//    QString data = createPlayAudioRequestData(info);
 
-    _service->requestPlayAudio(data);
+//    _service->requestPlayAudio(data);
 
 }
 

@@ -32,6 +32,7 @@ public:
     Q_PROPERTY(YaClient::Error lastError MEMBER _lastError)
     Q_PROPERTY(QString lastErrorString MEMBER _lastErrorString)
     Q_PROPERTY(PlayListModel* currentPlaylist MEMBER currentPlaylist)
+    Q_PROPERTY(QMediaPlayer* player MEMBER _player)
 
     explicit YaClient(QObject *parent = nullptr);
 
@@ -51,6 +52,22 @@ public:
     };
 
     Q_ENUM(State)
+
+    enum MediaStatus
+    {
+        UnknownMediaStatus,
+        NoMedia,
+        LoadingMedia,
+        LoadedMedia,
+        StalledMedia,
+        BufferingMedia,
+        BufferedMedia,
+        EndOfMedia,
+        InvalidMedia
+    };
+
+    Q_ENUM(MediaStatus)
+
 
     static QObject *qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine)
     {
@@ -75,6 +92,7 @@ public slots:
     void audioPositionChanged(qint64 duration);
 
 signals:
+    void audioStateChanged(QMediaPlayer::State state);
     void audioProgress(qint64 position);
     void error(YaClient::Error error);
     void authorized(QString userId, QString token);

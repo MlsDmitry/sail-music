@@ -52,9 +52,42 @@ Page {
             source: currentCoverImg
         }
 
-        Row {
+        Item {
+            id: progressBar
+
             anchors {
                 top: coverImage.bottom
+                horizontalCenter: parent.horizontalCenter
+                margins: Theme.paddingLarge
+            }
+            height: Theme.fontSizeLarge
+            width: parent.width
+
+            Rectangle{
+                id: playingProgressItem
+                width: 0
+                height: Theme.dp(3)
+                color: Theme.primaryColor
+                anchors{
+                    verticalCenter: parent.verticalCenter
+                    left: parent.left
+                    margins: Theme.paddingLarge
+                }
+            }
+
+            MouseArea{
+                id: seekArea
+                anchors.fill: parent
+                onClicked: {
+                    var current_poz = (mouseX-x)/width
+                    YaClient.seek(radio.currentTrack.duration * current_poz)
+                }
+            }
+        }
+
+        Row {
+            anchors {
+                top: progressBar.bottom
                 horizontalCenter: parent.horizontalCenter
                 margins: Theme.paddingLarge
             }
@@ -75,7 +108,6 @@ Page {
                 iconUrl: YaClient.playState() === YaClient.PlayingState ? "image://theme/icon-m-pause" : "image://theme/icon-m-play"
 
                 onMediaClicked: {
-                    iconUrl = YaClient.playState() === YaClient.PlayingState ? "image://theme/icon-m-play" : "image://theme/icon-m-pause";
                     if (radio.currentTrack) {
                         if (YaClient.playState() === YaClient.PlayingState) {
                             YaClient.pause();
@@ -113,7 +145,7 @@ Page {
                         radio.sendFeedbackRequest(radio.RadioStarted);
                         radio.setIndex(0);
                     }
-//                    console.log("Album cover: " + radio.currentTrack.album.coverUrl);
+                    //                    console.log("Album cover: " + radio.currentTrack.album.coverUrl);
                 }
 
                 onCurrentTrackUpdated: {
@@ -128,8 +160,46 @@ Page {
 
                 onCurrentTrackLinkReady: {
                     console.log("Current track is ready to play");
-//                    console.log(url);
+                    //                    console.log(url);
+                    YaClient.play(url);
 
+                }
+            }
+
+            Connections {
+                target: YaClient
+
+                onAudioProgress: {
+//                    console.log((progressBar.width - Theme.paddingLarge * 2) * (position / radio.currentTrack.duration));
+                    playingProgressItem.width = (progressBar.width - Theme.paddingLarge * 2) * (position / radio.currentTrack.duration);
+                }
+
+                onAudioStateChanged: {
+                    console.log(state + ":" + YaClient.PlayingState)
+                    if (state === YaClient.PlayingState) {
+                        playButton.iconUrl = "image://theme/icon-m-pause"
+                    } else if (state === YaClient.PausedState) {
+                        playButton.iconUrl = "image://theme/icon-m-play"
+                    }
+                }
+            }
+
+            Connections {
+                target: YaClient.player
+
+                onMediaStatusChanged: {
+                    if (status === YaClient.EndOfMedia) {
+                        YaClient.stop();
+
+                        var prevIndex = radio.currentIndex;
+
+                        if (radio.currentIndex + 1 == radio.rowCount() - 1) {
+                            radio.getTracks();
+                        } else {
+                            radio.setIndex(prevIndex + 1);
+//                            YaClient.play(radio.currentTrack.getDirectDownloadLink(radio.currentTrack.getMaxBitrateAvailable()));
+                        }
+                    }
                 }
             }
 
@@ -151,8 +221,8 @@ Page {
             currentSongTitle = title;
         }
 
-//        radio.prepareCurrentTrackToPlay()
-//        console.log("Preparing current track...");
+        //        radio.prepareCurrentTrackToPlay()
+        //        console.log("Preparing current track...");
         console.log("Done!")
     }
 
