@@ -7,16 +7,15 @@
 class Artist : public QObject
 {
     Q_OBJECT
-public:
+  public:
     explicit Artist(QObject *parent = nullptr);
 
     QString id;
     QString name;
     QString avatarUrl;
-signals:
-
+  signals:
 };
 
-Q_DECLARE_METATYPE(Artist*)
+Q_DECLARE_METATYPE(Artist *)
 
 #endif // ARTIST_H

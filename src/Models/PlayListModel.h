@@ -2,36 +2,35 @@
 #define PLAYLISTMODEL_H
 
 #include <QAbstractListModel>
-#include <QObject>
-#include <QString>
-#include <QNetworkAccessManager>
-#include <QJsonValue>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
-#include <QUrlQuery>
-#include <QUrl>
+#include <QJsonValue>
+#include <QNetworkAccessManager>
 #include <QNetworkRequest>
+#include <QObject>
+#include <QString>
+#include <QUrl>
+#include <QUrlQuery>
 
+#include "Models/AlbumModel.h"
+#include "Models/ArtistModel.h"
+#include "Models/TrackModel.h"
 #include "Utils/ApiRequest.h"
 #include "Utils/Core.h"
-#include "Models/ArtistModel.h"
-#include "Models/AlbumModel.h"
-#include "Models/TrackModel.h"
-
 
 class PlayListModel : public QAbstractListModel
 {
     Q_OBJECT
-public:
+  public:
     Q_PROPERTY(QString station MEMBER _station)
     Q_PROPERTY(qint64 currentIndex MEMBER _currentIndex)
-    Q_PROPERTY(Track* currentTrack MEMBER _currentTrack NOTIFY currentTrackUpdated)
+    Q_PROPERTY(Track *currentTrack MEMBER _currentTrack NOTIFY currentTrackUpdated)
 
     explicit PlayListModel(QObject *parent = nullptr);
 
-
-    enum Roles {
+    enum Roles
+    {
         TITLE = Qt::UserRole + 1,
         COVER_URL
     };
@@ -52,26 +51,24 @@ public:
     int getCurrentAlbumId();
     void updateCurrentTrackPlayedSeconds(qint64 seconds);
 
-public slots:
-    void handleTracksResponse(QJsonValue& reply);
+  public slots:
     void trackDownloadInfoReady();
 
-
-signals:
+  signals:
     void currentTrackLinkReady(QString url);
     void tracksReceived();
     void currentTrackUpdated();
 
-protected:
-    ApiRequest* _transport;
+  protected:
+    ApiRequest *_transport;
     QString _station;
     QString _batchId;
     QString _trackId;
     QVariantList _tracks;
 
     qint64 _previousTracksValue;
-    qint64  _currentIndex;
-    Track*  _currentTrack;
+    qint64 _currentIndex;
+    Track *_currentTrack;
 };
 
 #endif // PLAYLISTMODEL_H

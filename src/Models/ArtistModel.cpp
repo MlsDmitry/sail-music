@@ -2,5 +2,4 @@
 
 Artist::Artist(QObject *parent) : QObject(parent)
 {
-
 }

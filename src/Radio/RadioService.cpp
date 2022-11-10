@@ -1,19 +1,17 @@
 #include "Radio/RadioService.h"
-#include "Utils/commons.h"
 #include "Utils/Core.h"
+#include "Utils/commons.h"
 
 #include <QNetworkRequest>
-#include <QUrlQuery>
-#include <QUrl>
 #include <QString>
+#include <QUrl>
+#include <QUrlQuery>
 
 RadioService::RadioService(QObject *parent) : PlaylistService(parent)
 {
-
 }
 
-void
-RadioService::requestTracks(QString station)
+void RadioService::requestTracks(QString station)
 {
     QNetworkRequest request;
     QUrlQuery query;
@@ -28,12 +26,9 @@ RadioService::requestTracks(QString station)
     this->_transport->apiGetRequest(request);
 
     connect(this->_transport, &ApiRequest::dataReady, this, &RadioService::tracksReceived, Qt::UniqueConnection);
-
 }
 
-
-void
-RadioService::requestFeedback(QString station, QString batchId, QString& feedbackData)
+void RadioService::requestFeedback(QString station, QString batchId, QString &feedbackData)
 {
     QUrl url(makeUrl(MUSIC_API_URL, STATION_FEEDBACK, station.toStdString().data()));
     QNetworkRequest request;
@@ -46,6 +41,4 @@ RadioService::requestFeedback(QString station, QString batchId, QString& feedbac
     request.setUrl(url);
 
     this->_transport->apiPostRequest(request, feedbackData.toUtf8());
-
-
 }

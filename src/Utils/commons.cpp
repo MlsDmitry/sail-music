@@ -3,16 +3,12 @@
 #include <QDataStream>
 #include <QString>
 
-
 #include "commons.h"
 
-
-qint64 hash(const QString & str)
+qint64 hash(const QString &str)
 {
-    QByteArray hash = QCryptographicHash::hash(
-                QByteArray::fromRawData((const char*)str.utf16(), str.length()*2),
-                QCryptographicHash::Md5
-                );
+    QByteArray hash = QCryptographicHash::hash(QByteArray::fromRawData((const char *)str.utf16(), str.length() * 2),
+                                               QCryptographicHash::Md5);
     Q_ASSERT(hash.size() == 16);
     QDataStream stream(hash);
     qint64 a, b;
@@ -20,8 +16,7 @@ qint64 hash(const QString & str)
     return a ^ b;
 }
 
-QString
-makeUrl(const char * baseUrl, const char *format, ...)
+QString makeUrl(const char *baseUrl, const char *format, ...)
 {
     QString url(baseUrl);
 

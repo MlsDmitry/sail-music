@@ -1,12 +1,10 @@
-#include <QUrl>
-#include <QNetworkRequest>
 #include <QCryptographicHash>
 #include <QDir>
 #include <QFile>
+#include <QNetworkRequest>
+#include <QUrl>
 
 #include "Cache.h"
-
-
 
 Cache::Cache(QObject *parent) : QObject(parent)
 {
@@ -14,15 +12,16 @@ Cache::Cache(QObject *parent) : QObject(parent)
 
     QDir cacheDir(imagePath);
 
-    if (!cacheDir.exists()) {
+    if (!cacheDir.exists())
+    {
         cacheDir.mkpath(imagePath);
     }
 
-//    connect(this, &Cache::cacheImage, this, &Cache::cacheImageByUrl);
+    //    connect(this, &Cache::cacheImage, this, &Cache::cacheImageByUrl);
 }
 
-//void
-//Cache::cacheImage(QString urlStr)
+// void
+// Cache::cacheImage(QString urlStr)
 //{
 //    QUrl url(urlStr);
 //    QNetworkRequest request(url);
@@ -32,8 +31,7 @@ Cache::Cache(QObject *parent) : QObject(parent)
 //    connect(_transport, &ApiRequest::thirdPartyDataReady, this, &Cache::saveImageData);
 //}
 
-void
-Cache::saveImageData(QByteArray url, QByteArray data)
+void Cache::saveImageData(QByteArray url, QByteArray data)
 {
     QString urlHash = QString(QCryptographicHash::hash(url, QCryptographicHash::Md5).toHex());
     QString path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/images/" + urlHash;

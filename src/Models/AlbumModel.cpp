@@ -2,5 +2,4 @@
 
 Album::Album(QObject *parent) : QObject(parent)
 {
-
 }

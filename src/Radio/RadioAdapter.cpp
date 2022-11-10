@@ -1,21 +1,20 @@
 #include "RadioAdapter.h"
-#include "Adapters/TrackAdapter.h"
 #include "Adapters/AlbumAdapter.h"
+#include "Adapters/TrackAdapter.h"
 #include "Models/TrackModel.h"
 
 #include <iostream>
 #include <string>
 
-#include <QVariantMap>
-#include <QJsonObject>
-#include <QJsonValue>
+#include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QDebug>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QString>
+#include <QVariantMap>
 
-QVariantList
-parseTracks(QJsonValue& jsonData)
+QVariantList parseTracks(QJsonValue &jsonData)
 {
     QVariantList tracks;
 
@@ -26,28 +25,21 @@ parseTracks(QJsonValue& jsonData)
         QJsonValue track = trackJson.toObject().value("track");
         QJsonValue album = track.toObject()["albums"].toArray().at(0);
 
-        Track* newTrack = parseTrack(track);
+        Track *newTrack = parseTrack(track);
 
         newTrack->album = parseAlbum(album);
 
         tracks.append(QVariant::fromValue(newTrack));
-
     }
 
     return tracks;
 }
 
-
-
-QString
-createFeedbackRequest(QString station, QString type, QString trackId, int totalPlayedSeconds)
+QString createFeedbackRequest(QString station, QString type, QString trackId, int totalPlayedSeconds)
 {
-    feedback_t feedback {
-        station.toStdString(),
-                type.toStdString(),
-//                from.toStdString(),
-                QDateTime::currentDateTime().toString("yyyy-MM-ddThh:mm:ss.zzzZ").toStdString()
-    };
+    feedback_t feedback{station.toStdString(), type.toStdString(),
+                        //                from.toStdString(),
+                        QDateTime::currentDateTime().toString("yyyy-MM-ddThh:mm:ss.zzzZ").toStdString()};
 
     if (trackId.toInt() != 0)
         feedback._trackId = trackId.toInt();
@@ -55,5 +47,5 @@ createFeedbackRequest(QString station, QString type, QString trackId, int totalP
     if (totalPlayedSeconds != 0)
         feedback._totalPlayedSeconds = totalPlayedSeconds;
 
-    return QString::fromStdString(json_dto::to_json<feedback_t> (feedback));
+    return QString::fromStdString(json_dto::to_json<feedback_t>(feedback));
 }

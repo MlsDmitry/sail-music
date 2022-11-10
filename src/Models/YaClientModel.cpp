@@ -1,14 +1,14 @@
+#include <QCoreApplication>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QMediaPlayer>
 #include <QNetworkAccessManager>
+#include <QNetworkProxy>
+#include <QNetworkReply>
+#include <QSslError>
 #include <QUrl>
 #include <QUrlQuery>
-#include <QNetworkReply>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QNetworkProxy>
-#include <QMediaPlayer>
-#include <QSslError>
-#include <QCoreApplication>
 
 #include "Models/YaClientModel.h"
 
@@ -22,8 +22,7 @@ YaClient::YaClient(QObject *parent) : QObject(parent)
     connect(_player, &QMediaPlayer::stateChanged, this, &YaClient::audioStateChanged);
 }
 
-void
-YaClient::audioPositionChanged(qint64 position)
+void YaClient::audioPositionChanged(qint64 position)
 {
     currentPlaylist->updateCurrentTrackPlayedSeconds(position);
     emit audioProgress(position);
@@ -31,14 +30,14 @@ YaClient::audioPositionChanged(qint64 position)
 void YaClient::replySSLErrors(QNetworkReply *reply, QList<QSslError> errors)
 {
     QList<QSslError> ignoreErrors;
-    foreach(QSslError error, errors)
+    foreach (QSslError error, errors)
     {
-//        qDebug() << QLatin1String("Ignoring SSL error: ")
-//                   << (int)error.error()
-//                   << QLatin1String(":")
-//                   << error.errorString();
+        //        qDebug() << QLatin1String("Ignoring SSL error: ")
+        //                   << (int)error.error()
+        //                   << QLatin1String(":")
+        //                   << error.errorString();
 
-        switch( error.error() )
+        switch (error.error())
         {
         case QSslError::CertificateUntrusted:
         case QSslError::SelfSignedCertificate:
@@ -52,12 +51,9 @@ void YaClient::replySSLErrors(QNetworkReply *reply, QList<QSslError> errors)
         }
     }
     reply->ignoreSslErrors(ignoreErrors);
-
 }
 
-
-void
-YaClient::requestAuth(QString username, QString password, QString captchaAnswer)
+void YaClient::requestAuth(QString username, QString password, QString captchaAnswer)
 {
     QUrl url(AUTH_URL);
     QNetworkRequest request(url);
@@ -70,7 +66,8 @@ YaClient::requestAuth(QString username, QString password, QString captchaAnswer)
     query.addQueryItem("client_id", CLIENT_ID);
     query.addQueryItem("client_secret", CLIENT_SECRET);
 
-    if (_captchaKey.length() != 0 && captchaAnswer.length() != 0) {
+    if (_captchaKey.length() != 0 && captchaAnswer.length() != 0)
+    {
         query.addQueryItem("x_captcha_key", _captchaKey);
         query.addQueryItem("x_captcha_answer", captchaAnswer);
     }
@@ -79,42 +76,37 @@ YaClient::requestAuth(QString username, QString password, QString captchaAnswer)
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
-
     _transport->thirdPartyPostRequest(request, data, false);
 
     connect(_transport, &ApiRequest::thirdPartyDataReady, this, &YaClient::handleAuthResponse);
-
 }
 
-void
-YaClient::setError(YaClient::Error code)
+void YaClient::setError(YaClient::Error code)
 {
     _lastError = code;
     emit error(code);
 }
 
-void
-YaClient::clearCaptchaData()
+void YaClient::clearCaptchaData()
 {
     _captchaKey = "";
     _captchaUrl = "";
 }
 
-void
-YaClient::setCaptchaData(QString captchaKey, QString captchaUrl)
+void YaClient::setCaptchaData(QString captchaKey, QString captchaUrl)
 {
     _captchaKey = captchaKey;
     _captchaUrl = captchaUrl;
 }
 
-
-void
-YaClient::handleAuthResponse(QNetworkReply* reply)
+void YaClient::handleAuthResponse(QNetworkReply *reply)
 {
     const QByteArray data = reply->readAll();
 
-    if (reply->error() != QNetworkReply::NoError) {
-        if (data.length() == 0) {
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        if (data.length() == 0)
+        {
             setError(UndefinedError);
             return;
         }
@@ -122,12 +114,17 @@ YaClient::handleAuthResponse(QNetworkReply* reply)
 
         _lastErrorString = data;
 
-        if (data_obj.value("error_description").toString() == "CAPTCHA required") {
+        if (data_obj.value("error_description").toString() == "CAPTCHA required")
+        {
             setCaptchaData(data_obj.value("x_captcha_key").toString(), data_obj.value("x_captcha_url").toString());
             setError(CaptchaRequired);
-        } else if (data_obj.value("error_description").toString() == "login or password is not valid") {
+        }
+        else if (data_obj.value("error_description").toString() == "login or password is not valid")
+        {
             setError(InvalidCredentials);
-        } else {
+        }
+        else
+        {
             setError(UndefinedError);
         }
         return;
@@ -139,7 +136,8 @@ YaClient::handleAuthResponse(QNetworkReply* reply)
     QJsonDocument data_doc = QJsonDocument::fromJson(data);
     QJsonObject data_obj = data_doc.object();
 
-    if (!data_obj.contains("access_token")) {
+    if (!data_obj.contains("access_token"))
+    {
         setError(UndefinedError);
         return;
     }
@@ -157,18 +155,16 @@ YaClient::handleAuthResponse(QNetworkReply* reply)
     reply->deleteLater();
 }
 
-
-void delay( int millisecondsToWait )
+void delay(int millisecondsToWait)
 {
-    QTime dieTime = QTime::currentTime().addMSecs( millisecondsToWait );
-    while( QTime::currentTime() < dieTime )
+    QTime dieTime = QTime::currentTime().addMSecs(millisecondsToWait);
+    while (QTime::currentTime() < dieTime)
     {
-        QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
     }
 }
 
-void
-YaClient::play(QString url)
+void YaClient::play(QString url)
 {
     if (_player->state() == QMediaPlayer::PlayingState)
         _player->stop();
@@ -179,44 +175,37 @@ YaClient::play(QString url)
     _player->setVolume(100);
     _player->play();
 
-//    struct play_audio_request_info info;
+    //    struct play_audio_request_info info;
 
-//    info.track_id = currentPlaylist->getCurrentTrackId();
-//    info.album_id = currentPlaylist->getCurrentAlbumId();
+    //    info.track_id = currentPlaylist->getCurrentTrackId();
+    //    info.album_id = currentPlaylist->getCurrentAlbumId();
 
+    //    QString data = createPlayAudioRequestData(info);
 
-//    QString data = createPlayAudioRequestData(info);
-
-//    _service->requestPlayAudio(data);
-
+    //    _service->requestPlayAudio(data);
 }
 
-void
-YaClient::continuePlay()
+void YaClient::continuePlay()
 {
     _player->play();
 }
 
-void
-YaClient::pause()
+void YaClient::pause()
 {
     _player->pause();
 }
 
-QMediaPlayer::State
-YaClient::playState()
+QMediaPlayer::State YaClient::playState()
 {
     return _player->state();
 }
 
-void
-YaClient::stop()
+void YaClient::stop()
 {
     _player->stop();
 }
 
-void
-YaClient::seek(qint64 position)
+void YaClient::seek(qint64 position)
 {
     _player->setPosition(position);
 }

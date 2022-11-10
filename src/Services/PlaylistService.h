@@ -8,25 +8,22 @@
 class PlaylistService : public QObject
 {
     Q_OBJECT
-public:
+  public:
     explicit PlaylistService(QObject *parent = nullptr);
 
     Q_INVOKABLE virtual void requestTracks();
 
+  public slots:
+    //    void handleTracksResponse(QJsonValue& reply);
+    //    void trackDownloadInfoReady();
 
-public slots:
-//    void handleTracksResponse(QJsonValue& reply);
-//    void trackDownloadInfoReady();
-
-
-signals:
+  signals:
     void currentTrackLinkReady(QString url);
     void tracksReceived();
     void currentTrackUpdated();
 
-protected:
-    ApiRequest* _transport;
-
+  protected:
+    ApiRequest *_transport;
 };
 
 #endif // PLAYLISTSERVICE_H

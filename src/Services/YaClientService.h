@@ -10,16 +10,15 @@
 class YaClientService : public QObject
 {
     Q_OBJECT
-public:
+  public:
     explicit YaClientService(QObject *parent = nullptr);
 
     void requestPlayAudio(QString requestData);
 
-signals:
+  signals:
 
-private:
-    ApiRequest* _transport;
-
+  private:
+    ApiRequest *_transport;
 };
 
 #endif // YACLIENTSERVICE_H

@@ -1,23 +1,23 @@
 #ifndef CORE_H
 #define CORE_H
 
-#include <QObject>
-#include <QNetworkAccessManager>
-#include <QQmlEngine>
-#include <QJSEngine>
-#include <QNetworkReply>
-#include <QSslError>
 #include <QByteArray>
+#include <QJSEngine>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QObject>
+#include <QQmlEngine>
+#include <QSslError>
 
 #include "Utils/Settings.h"
 
-#define MUSIC_API_URL   "https://api.music.yandex.net"
+#define MUSIC_API_URL "https://api.music.yandex.net"
 
 class Core : public QObject
 {
     Q_OBJECT
-public:
-    Q_PROPERTY(QNetworkAccessManager* transport MEMBER _transport)
+  public:
+    Q_PROPERTY(QNetworkAccessManager *transport MEMBER _transport)
     explicit Core(QObject *parent = nullptr);
 
     static QObject *qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine)
@@ -28,8 +28,8 @@ public:
         return new Core();
     }
 
-private:
-    QNetworkAccessManager* _transport;
+  private:
+    QNetworkAccessManager *_transport;
 };
 
 #endif // CORE_H

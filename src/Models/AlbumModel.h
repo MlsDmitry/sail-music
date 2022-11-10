@@ -7,7 +7,7 @@
 class Album : public QObject
 {
     Q_OBJECT
-public:
+  public:
     Q_PROPERTY(QString id MEMBER id)
     Q_PROPERTY(QString title MEMBER title)
     Q_PROPERTY(QString coverUrl MEMBER coverUrl)
@@ -17,8 +17,7 @@ public:
     QString id;
     QString title;
     QString coverUrl;
-signals:
-
+  signals:
 };
 
 #endif // ALBUM_H
