@@ -188,7 +188,7 @@ Page {
                 target: YaClient.player
 
                 onMediaStatusChanged: {
-                    if (status === YaClient.EndOfMedia) {
+                    if (status === YaClient.EndOfMedia && radio.currentTrack.duration === radio.currentTrack.totalPlayedMs) {
                         YaClient.stop();
 
                         var prevIndex = radio.currentIndex;
