@@ -1,22 +1,26 @@
 #include "TrackAdapter.h"
 #include "Models/TrackModel.h"
 
+#include <memory>
+
 #include <QDomDocument>
 #include <QJsonArray>
+#include <QSharedPointer>
 #include <QXmlStreamReader>
 
-Track *parseTrack(QJsonValue &data)
+Track* parseTrack(QJsonValue &data)
 {
     try
     {
         QString trackStr = QJsonDocument(data.toObject()).toJson(QJsonDocument::Compact);
         auto track = json_dto::from_json<track_t>(trackStr.toStdString());
 
-        Track *trackModel = new Track();
+        auto trackModel = new Track;
 
         trackModel->id = QString::fromStdString(track._id);
         trackModel->title = QString::fromStdString(track._title);
-        trackModel->coverUrl = "https://" + QString::fromStdString(track._coverUrl);
+        trackModel->coverUrl = QUrl::fromPercentEncoding(QByteArray::fromStdString(track._coverUrl));
+        trackModel->coverUrl = QString("https://") + trackModel->coverUrl;
         trackModel->duration = track._durationMs;
 
         return trackModel;

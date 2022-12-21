@@ -31,7 +31,8 @@ class PlayListModel : public QAbstractListModel
 
     enum Roles
     {
-        TITLE = Qt::UserRole + 1,
+        ID = Qt::UserRole + 1,
+        TITLE,
         COVER_URL
     };
 
@@ -47,7 +48,7 @@ class PlayListModel : public QAbstractListModel
 
     Q_INVOKABLE virtual void getTracks();
 
-    int getCurrentTrackId();
+    Q_INVOKABLE int getCurrentTrackId();
     int getCurrentAlbumId();
     void updateCurrentTrackPlayedSeconds(qint64 seconds);
 

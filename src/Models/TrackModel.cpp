@@ -22,6 +22,7 @@ Track::Track(QObject *parent) : QObject(parent)
     maxBitrate = 0;
     duration = 0;
     totalPlayedMs = 0;
+    state = 0;
 
     //    connect(_cache, &Cache::imageSaved, this, &Track::trackCoverSaved);
 

@@ -9,6 +9,8 @@
 #include <QThread>
 #include <QVariantMap>
 
+#include <memory>
+
 #include "Models/AlbumModel.h"
 #include "Services/TrackService.h"
 #include "Utils/Cache.h"
@@ -20,6 +22,7 @@ class Track : public QObject
   public:
     Q_PROPERTY(QString coverUrl MEMBER coverUrl NOTIFY coverUrlUpdated)
     Q_PROPERTY(QString title MEMBER title)
+    Q_PROPERTY(qint64 state MEMBER state)
     Q_PROPERTY(Album *album MEMBER album)
     Q_PROPERTY(qint64 duration MEMBER duration)
     Q_PROPERTY(qint64 totalPlayedMs MEMBER totalPlayedMs);
@@ -32,6 +35,13 @@ class Track : public QObject
     Q_INVOKABLE QString getMaxBitrateAvailable();
     //    void cacheTrackCover(QString imageResolution);
 
+    enum State {
+        READY_TO_PLAY = 0x1
+    };
+    Q_DECLARE_FLAGS(States, State)
+    Q_FLAG(States)
+    Q_ENUMS(State)
+
   signals:
     void coverUrlUpdated();
     void downloadInfoReady();
@@ -41,6 +51,7 @@ class Track : public QObject
     QString id;
     QString title;
     QString coverUrl;
+    qint64 state;
 
     qint64 duration;
     qint64 totalPlayedMs;
@@ -60,5 +71,6 @@ class Track : public QObject
 };
 
 Q_DECLARE_METATYPE(Track *)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Track::States)
 
 #endif // TRACK_H

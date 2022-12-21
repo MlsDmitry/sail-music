@@ -60,5 +60,6 @@ class RadioListModel : public PlayListModel
 
   private:
     RadioService *_service;
+    qint64        _prevTracksHash;
 };
 #endif // RADIOLISTMODEL_H

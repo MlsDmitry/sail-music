@@ -15,7 +15,7 @@ QHash<int, QByteArray> PlayListModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
 
-    //    roles.insert(PlayListModel::ID, "id");
+    roles.insert(PlayListModel::ID, "id");
     roles.insert(PlayListModel::TITLE, "title");
     roles.insert(PlayListModel::COVER_URL, "coverUrl");
 
@@ -28,16 +28,12 @@ QVariant PlayListModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    int id = QMetaType::type("Track");
-    if (id == QMetaType::UnknownType)
-        return QVariant();
 
     Track *track = _tracks.at(index.row()).value<Track *>();
     switch (role)
     {
-    //        case PlayListModel::ID:
-    //            return track.id;
-    //            break;
+    case PlayListModel::ID:
+        return track->id;
     case PlayListModel::TITLE:
         return track->title;
         break;
@@ -64,7 +60,8 @@ int PlayListModel::getCurrentAlbumId()
 
 void PlayListModel::updateCurrentTrackPlayedSeconds(qint64 ms)
 {
-    _currentTrack->totalPlayedMs = ms;
+    if (ms > 0)
+        _currentTrack->totalPlayedMs = ms;
 }
 
 QVariant PlayListModel::get(int idx)
@@ -78,6 +75,7 @@ QVariant PlayListModel::get(int idx)
 
     Track *track = _tracks.at(idx).value<Track *>();
 
+    itemData.insert("id", track->id);
     itemData.insert("title", track->title);
     itemData.insert("coverUrl", track->coverUrl);
 
@@ -109,6 +107,9 @@ void PlayListModel::trackDownloadInfoReady()
 
     qDebug() << "Requesting track link for bitrate: " << _currentTrack->getMaxBitrateAvailable();
 
-    connect(_currentTrack, &Track::downloadLinkReady, this, &PlayListModel::currentTrackLinkReady,
+    connect(_currentTrack, &Track::downloadLinkReady, this, [=](QString url) {
+//        _currentTrack->state |= Track::READY_TO_PLAY;
+//        emit dataChanged(index(_currentIndex), index(_currentIndex), { ID, TITLE, COVER_URL });
+    },
             Qt::UniqueConnection);
 }

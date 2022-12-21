@@ -1,0 +1,24 @@
+**Authentication**
+
+
+- [x] Log in functionality is provided by YaClientModel::requestAuth
+method.
+
+- [ ] Log out functionality is provided by YaClientModel::logOut ( don't
+      forget to delete accessToken from configuration file)
+
+- [ ] Write user-friendly interface which allows to log in/out.
+
+User interface author's idea:
+
+    * Log in button should be in the PullDownMenu in the main page.
+
+    * Log out button should be in the PullDownMenu in Settings page
+      only. I think if Log out will be displayed in dropdown in main
+      page it may be misclicked, and log out will not be used oftenly
+      that's why I think it should go to Settings page.
+
+    * Display notification of (un)successful log in/out.
+
+    * After successful log in replace it with settings button.
+

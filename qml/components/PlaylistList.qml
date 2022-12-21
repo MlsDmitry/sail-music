@@ -6,7 +6,13 @@ import "../components"
 
 Item {
 
-    property string listName
+    property var radio
+    property string listName: ""
+
+//    anchors.fill: parent
+
+    //    height: radioLabel.contentHeight + radioList.height
+    //    height: radioListLabel.height + radioList.height
 
     Column {
 
@@ -39,43 +45,44 @@ Item {
             model: ListModel {
                 ListElement {
                     station: "user:onyourwave"
-                    radioCoverUrl: "https://avatars.yandex.net/get-music-misc/70850/rotor-personal-station-icon/400x400"
-                    radioName: "My Vibe"
+                    coverUrl: "https://avatars.yandex.net/get-music-misc/70850/rotor-personal-station-icon/400x400"
+                    title: "My Vibe"
                     radioColor: "#2AA75B"
                 }
 
                 ListElement {
                     station: "local:moscow"
-                    radioCoverUrl: "https://avatars.yandex.net/get-music-misc/29541/rotor-local-moscow-icon/400x400"
-                    radioName: "Popular in Moscow"
+                    coverUrl: "https://avatars.yandex.net/get-music-misc/29541/rotor-local-moscow-icon/400x400"
+                    title: "Popular in Moscow"
                     radioColor: "black"
                 }
                 ListElement {
                     station: "genre:doommetal"
-                    radioCoverUrl: "https://avatars.yandex.net/get-music-misc/34161/rotor-genre-metal-icon/400x400"
-                    radioName: "Doom metal"
+                    coverUrl: "https://avatars.yandex.net/get-music-misc/34161/rotor-genre-metal-icon/400x400"
+                    title: "Doom metal"
                     radioColor: "black"
                 }
                 ListElement {
                     station: "genre:bassgenre"
-                    radioCoverUrl: "https://avatars.yandex.net/get-music-misc/40584/rotor-genre-dubstep-icon/400x400"
-                    radioName: "Bass"
+                    coverUrl: "https://avatars.yandex.net/get-music-misc/40584/rotor-genre-dubstep-icon/400x400"
+                    title: "Bass"
                     radioColor: "black"
                 }
                 ListElement {
                     station: "genre:rap"
-                    radioCoverUrl: "https://avatars.yandex.net/get-music-misc/34161/rotor-genre-rusrap-icon/400x400"
-                    radioName: "Russian Rap"
+                    coverUrl: "https://avatars.yandex.net/get-music-misc/34161/rotor-genre-rusrap-icon/400x400"
+                    title: "Russian Rap"
                     radioColor: "black"
                 }
             }
 
-            delegate: RadioAlbum {
+            delegate: AlbumElement {
                 width: radioList.width / 2
                 height: radioList.height
 
-                coverUrl: radioCoverUrl
-                title: radioName
+                radioCoverUrl: coverUrl
+                radioTitle: title
+
             }
 
 

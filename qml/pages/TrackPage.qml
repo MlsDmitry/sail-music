@@ -21,9 +21,6 @@ Page {
             }
         }
 
-        //    contentHeight: height
-
-
         Label {
             id: songTitle
 
@@ -47,9 +44,10 @@ Page {
                 margins: Theme.paddingLarge
             }
 
-            asynchronous: true
+            width: 500
+            height: 500
 
-            source: currentCoverImg
+            source: currentCoverImg.replace("%%", "1000x1000")
         }
 
         Item {
@@ -115,8 +113,7 @@ Page {
                             YaClient.continuePlay();
                         } else {
                             console.log("Track started");
-                            radio.sendFeedbackRequest(1)
-                            YaClient.play(radio.currentTrack.getDirectDownloadLink(radio.currentTrack.getMaxBitrateAvailable()));
+                            radio.prepareCurrentTrackToPlay ();
                         }
                     }
                 }
@@ -128,7 +125,9 @@ Page {
                     if (radio.currentTrack) {
                         playButton.iconUrl = "image://theme/icon-m-play"
                         YaClient.stop();
-                        if (radio.currentIndex + 1 == radio.rowCount() - 1) {
+                        radio.sendFeedbackRequest(3)
+                        console.log("radio.rowCount()" << radio.rowCount())
+                        if (radio.currentIndex + 1 === radio.rowCount()) {
                             radio.getTracks();
                         } else {
                             radio.setIndex(radio.currentIndex + 1);
@@ -136,72 +135,79 @@ Page {
                     }
                 }
             }
-            Connections {
-                target: radio
 
-                onTracksReceived: {
-                    console.log("Tracks received");
-                    if (radio.rowCount() > 0 && radio.currentIndex === -1) {
-                        radio.sendFeedbackRequest(radio.RadioStarted);
-                        radio.setIndex(0);
-                    }
-                    //                    console.log("Album cover: " + radio.currentTrack.album.coverUrl);
-                }
+//            Connections {
+//                target: radio
 
-                onCurrentTrackUpdated: {
-                    console.log("Here!!!")
-                    radio.prepareCurrentTrackToPlay();
-                    checkSetCurrenTrack();
-                }
+//                onTracksReceived: {
+//                    console.log("Tracks received. total tracks: " + radio.rowCount());
+//                    if (radio.rowCount() > 0 && radio.currentIndex === -1) {
+//                        radio.sendFeedbackRequest(radio.RadioStarted);
+//                        radio.setIndex(0);
+//                        console.log("Set current index to 0. Radio Started");
+//                    }
 
-                onFeedbackReceived: {
-                    console.log("Preparing current track...");
-                }
+//                    for (var i = radio.currentIndex; i < radio.rowCount(); i++) {
+//                        console.log(radio.get(i).title);
+//                    }
 
-                onCurrentTrackLinkReady: {
-                    console.log("Current track is ready to play");
-                    //                    console.log(url);
-                    YaClient.play(url);
+//                }
 
-                }
-            }
+//                onCurrentTrackUpdated: {
+//                    console.log("Here!!!")
+//                    checkSetCurrenTrack();
+//                }
 
-            Connections {
-                target: YaClient
+//                onFeedbackReceived: {
+//                    console.log("Preparing current track...");
+//                }
 
-                onAudioProgress: {
-//                    console.log((progressBar.width - Theme.paddingLarge * 2) * (position / radio.currentTrack.duration));
-                    playingProgressItem.width = (progressBar.width - Theme.paddingLarge * 2) * (position / radio.currentTrack.duration);
-                }
+//                onCurrentTrackLinkReady: {
+//                    console.log("Current track is ready to play");
+//                    //                    console.log(url);
+//                    YaClient.play(url);
+//                    radio.sendFeedbackRequest(1)
 
-                onAudioStateChanged: {
-                    console.log(state + ":" + YaClient.PlayingState)
-                    if (state === YaClient.PlayingState) {
-                        playButton.iconUrl = "image://theme/icon-m-pause"
-                    } else if (state === YaClient.PausedState) {
-                        playButton.iconUrl = "image://theme/icon-m-play"
-                    }
-                }
-            }
+//                }
+//            }
 
-            Connections {
-                target: YaClient.player
+//            Connections {
+//                target: YaClient
 
-                onMediaStatusChanged: {
-                    if (status === YaClient.EndOfMedia && radio.currentTrack.duration === radio.currentTrack.totalPlayedMs) {
-                        YaClient.stop();
+//                onAudioProgress: {
+////                    console.log((progressBar.width - Theme.paddingLarge * 2) * (position / radio.currentTrack.duration));
+//                    playingProgressItem.width = (progressBar.width - Theme.paddingLarge * 2) * (position / radio.currentTrack.duration);
+//                }
 
-                        var prevIndex = radio.currentIndex;
+//                onAudioStateChanged: {
+//                    console.log(state + ":" + YaClient.PlayingState)
+//                    if (state === YaClient.PlayingState) {
+//                        playButton.iconUrl = "image://theme/icon-m-pause"
+//                    } else if (state === YaClient.PausedState) {
+//                        playButton.iconUrl = "image://theme/icon-m-play"
+//                    }
+//                }
+//            }
 
-                        if (radio.currentIndex + 1 == radio.rowCount() - 1) {
-                            radio.getTracks();
-                        } else {
-                            radio.setIndex(prevIndex + 1);
-//                            YaClient.play(radio.currentTrack.getDirectDownloadLink(radio.currentTrack.getMaxBitrateAvailable()));
-                        }
-                    }
-                }
-            }
+//            Connections {
+//                target: YaClient.player
+
+//                onMediaStatusChanged: {
+//                    console.log(radio.currentTrack.totalPlayedMs, radio.currentTrack.duration);
+//                    if (status === YaClient.EndOfMedia && radio.currentTrack.duration <= radio.currentTrack.totalPlayedMs) {
+//                        YaClient.stop();
+//                        radio.sendFeedbackRequest(2);
+//                        var prevIndex = radio.currentIndex;
+
+//                        if (radio.currentIndex + 1 === radio.rowCount()) {
+//                            radio.getTracks();
+//                        } else {
+//                            radio.setIndex(prevIndex + 1);
+//                            radio.prepareCurrentTrackToPlay();
+//                        }
+//                    }
+//                }
+//            }
 
         }
     }
@@ -227,7 +233,7 @@ Page {
     }
 
     onStatusChanged: {
-        console.log("Index is " + radio.currentIndex + " Page status " + status + " === " + PageStatus.Active);
+//        console.log("Index is " + radio.currentIndex + " Page status " + status + " === " + PageStatus.Active);
         //        if (status == PageStatus.Active) {
         //            checkSetCurrenTrack();
         //        }

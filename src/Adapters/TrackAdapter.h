@@ -5,6 +5,7 @@
 #include "json_dto/pub.hpp"
 
 #include <iostream>
+#include <memory>
 #include <string>
 
 #include <QDebug>
@@ -15,6 +16,7 @@
 #include <QObject>
 #include <QString>
 #include <QVariantMap>
+#include <QSharedPointer>
 
 struct track_t
 {
@@ -75,7 +77,7 @@ struct track_file_download_info
     QString ts;
 };
 
-Track *parseTrack(QJsonValue &data);
+Track* parseTrack(QJsonValue &data);
 QVariantMap parseDownloadInfo(QJsonValue &data);
 track_file_download_info parseTrackFileDownloadInfo(QByteArray data);
 

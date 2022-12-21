@@ -47,4 +47,6 @@ QVariantList parseTracks(QJsonValue &data);
 
 QString createFeedbackRequest(QString station, QString type, QString trackId = "0", int totalPlayedSeconds = 0);
 
+QString parseBatchId(QJsonValue &jsonData);
+
 #endif // RADIOADAPTER_H
