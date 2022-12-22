@@ -1,12 +1,18 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import QtQml.StateMachine 1.0 as DSM
 
 import "../components"
 
 Page {
+    id: playlistPage
+
     property var playlistModel
+    property var radioSM
+
     property string playlistCover
     property string playlistTitle
+
 
     Label {
         id: albumLabel
@@ -30,14 +36,47 @@ Page {
         source: playlistCover
     }
 
-    PlaylistTracks {
+
+    Loader {
+        id: loader
+
         anchors {
             top: albumCover.bottom
-            left: parent.left
-            right: parent.right
-            bottom: parent.bottom
+            left: playlistPage.left
+            right: playlistPage.right
+            bottom: playlistPage.bottom
         }
 
-        playlist: playlistModel
+        BusyIndicator {
+            anchors {
+                centerIn: parent
+            }
+
+            size: BusyIndicatorSize.Large
+
+            running: !radioSM.children[3].active
+        }
+
+    }
+
+    Component {
+        id: playlistTracksComponent
+
+        PlaylistTracks {
+            playlist: playlistModel
+        }
+    }
+
+    Connections {
+        target: radioSM.children[3]
+        onActiveChanged: {
+            if (active)
+                loader.sourceComponent = playlistTracksComponent
+        }
+    }
+
+    Component.onCompleted: {
+        if (radioSM.children[3].active)
+            loader.sourceComponent = playlistTracksComponent
     }
 }

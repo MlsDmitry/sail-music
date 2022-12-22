@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.15.2, 2022-12-22T00:47:42. -->
+<!-- Written by QtCreator 4.15.2, 2022-12-22T15:41:22. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -491,7 +491,9 @@
     <value type="int" key="MerRunConfiguration.QmlLiveOptions">3</value>
     <value type="QString" key="MerRunConfiguration.QmlLiveTargetWorkspace"></value>
     <value type="int" key="PE.EnvironmentAspect.Base">1</value>
-    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
+    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes">
+     <value type="QString">QML_IMPORT_TRACE=0</value>
+    </valuelist>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">sail-music</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">QmakeProjectManager.MerRunConfiguration:sail-music</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">sail-music</value>

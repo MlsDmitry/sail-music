@@ -6,6 +6,11 @@ import org.k_bsp.sailmusic 1.0
 Item {
     property var playlist
 
+    BusyIndicator {
+             size: BusyIndicatorSize.Large
+             anchors.centerIn: parent
+   }
+
     SilicaListView {
         id: tracksView
         anchors.fill: parent
@@ -18,8 +23,8 @@ Item {
         delegate: Item {
 
             Component.onCompleted: {
-                if (playlist.currentTrack)
-                    console.log("State: " + playlist.currentTrack.state);
+//                if (playlist.currentTrack)
+//                    console.log("State: " + playlist.currentTrack.state);
             }
 
             width: tracksView.width - 10

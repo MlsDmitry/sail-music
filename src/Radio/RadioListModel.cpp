@@ -91,15 +91,15 @@ void RadioListModel::getTracks()
             }
             _prevTracksHash = newHash;
 
-//            beginInsertRows(QModelIndex(), rowCount(), rowCount() + newTracks.count() - 1);
+            beginInsertRows(QModelIndex(), rowCount(), rowCount() + newTracks.count() - 1);
             for (auto track : newTracks) {
-                beginInsertRows(QModelIndex(), rowCount(), rowCount());
+//                beginInsertRows(QModelIndex(), rowCount(), rowCount());
                 qDebug() << "Track info: " << track.value<Track*>()->title;
                 _tracks.push_back(track);
                 qDebug() << "Tracks size: " << _tracks.size();
-                endInsertRows();
-                break;
+//                endInsertRows();
             }
+            endInsertRows();
 
             _batchId = batchId;
 

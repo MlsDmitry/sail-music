@@ -35,7 +35,7 @@ Item {
                 YaClient.currentPlaylist = radio;
                 radio.changeStation(station);
                 radio.getTracks();
-                pageStack.push(Qt.resolvedUrl("../pages/PlaylistPage.qml"), { "playlistModel": radio });
+//                pageStack.push(Qt.resolvedUrl("../pages/PlaylistPage.qml"), { "playlistModel": radio });
                 //                        pageStack.navigateForward(PageStackAction.Animated)
             }
             onPressed: {
