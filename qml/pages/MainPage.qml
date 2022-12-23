@@ -7,6 +7,7 @@ import Nemo.DBus 2.0
 
 
 import "../components"
+import "../Radio"
 
 Page {
 

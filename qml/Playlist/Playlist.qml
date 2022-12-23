@@ -19,7 +19,7 @@ Item {
 
         model: playlist
 
-        delegate: PlaylistTrackView {
+        delegate: TrackDelegate {
             width: tracksView.width
         }
 

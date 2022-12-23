@@ -3,6 +3,7 @@ import Sailfish.Silica 1.0
 import QtQml.StateMachine 1.0 as DSM
 
 import "../components"
+import "../Playlist"
 
 Page {
     id: playlistPage
@@ -62,7 +63,7 @@ Page {
     Component {
         id: playlistTracksComponent
 
-        PlaylistTracks {
+        Playlist {
             playlist: playlistModel
         }
     }
