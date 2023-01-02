@@ -27,6 +27,14 @@ void YaClient::audioPositionChanged(qint64 position)
     currentPlaylist->updateCurrentTrackPlayedSeconds(position);
     emit audioProgress(position);
 }
+
+void YaClient::setPlaylist(PlayListModel* playlist)
+{
+    currentPlaylist = playlist;
+
+    emit playlistUpdated();
+}
+
 void YaClient::replySSLErrors(QNetworkReply *reply, QList<QSslError> errors)
 {
     QList<QSslError> ignoreErrors;

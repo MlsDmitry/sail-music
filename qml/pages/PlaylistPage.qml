@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQml.StateMachine 1.0 as DSM
+import org.k_bsp.sailmusic 1.0
 
 import "../components"
 import "../Playlist"
@@ -14,70 +15,87 @@ Page {
     property string playlistCover
     property string playlistTitle
 
+    SilicaFlickable {
+        anchors.fill: parent
 
-    Label {
-        id: albumLabel
+        Label {
+            id: albumLabel
 
-        anchors {
-            horizontalCenter: parent.horizontalCenter
-            top: parent.top
-            topMargin: Theme.paddingLarge
-        }
-        text: playlistTitle
-    }
-
-    Image {
-        id: albumCover
-        anchors {
-            top: albumLabel.bottom
-            topMargin: Theme.paddingLarge
-            horizontalCenter: parent.horizontalCenter
-
-        }
-        source: playlistCover
-    }
-
-
-    Loader {
-        id: loader
-
-        anchors {
-            top: albumCover.bottom
-            left: playlistPage.left
-            right: playlistPage.right
-            bottom: playlistPage.bottom
-        }
-
-        BusyIndicator {
             anchors {
-                centerIn: parent
+                horizontalCenter: parent.horizontalCenter
+                top: parent.top
+                topMargin: Theme.paddingLarge
+            }
+            text: playlistTitle
+        }
+
+        Image {
+            id: albumCover
+            anchors {
+                top: albumLabel.bottom
+                topMargin: Theme.paddingLarge
+                horizontalCenter: parent.horizontalCenter
+
+            }
+            source: playlistCover
+        }
+
+
+        Loader {
+            id: loader
+
+            anchors {
+                top: albumCover.bottom
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
             }
 
-            size: BusyIndicatorSize.Large
+            BusyIndicator {
+                id: indicator
 
-            running: !radioSM.children[3].active
+                anchors {
+                    centerIn: parent
+                }
+
+                size: BusyIndicatorSize.Large
+
+                running: !radioSM.ready
+            }
+
         }
 
-    }
+        Connections {
+            target: radioSM
 
-    Component {
-        id: playlistTracksComponent
-
-        Playlist {
-            playlist: playlistModel
-        }
-    }
-
-    Connections {
-        target: radioSM.children[3]
-        onActiveChanged: {
-            if (active)
+            onReadyChanged: {
                 loader.sourceComponent = playlistTracksComponent
+            }
+        }
+
+        Component {
+            id: playlistTracksComponent
+
+            Playlist {
+                playlist: playlistModel
+            }
+        }
+
+        Component.onCompleted: {
+            if (radioSM.ready)
+                loader.sourceComponent = playlistTracksComponent
+            else if (YaClient.currentPlaylist.rowCount() === 0) {
+                radioSM.load_tracks();
+            }
+        }
+
+        PushUpMenu {
+            MenuItem {
+                text: "Load more tracks"
+
+                onClicked: radioSM.load_tracks()
+            }
         }
     }
 
-    Component.onCompleted: {
-        if (radioSM.children[3].active)
-            loader.sourceComponent = playlistTracksComponent
-    }
 }

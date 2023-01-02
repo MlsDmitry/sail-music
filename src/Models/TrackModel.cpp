@@ -67,6 +67,8 @@ void Track::getTrackFileDownloadLink(QString bitrate)
 
             qDebug() << "Got link! " << directDownloadLink;
 
+            state = READY_TO_PLAY;
+
             emit downloadLinkReady(directDownloadLink);
         },
         Qt::UniqueConnection);

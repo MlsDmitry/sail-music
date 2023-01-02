@@ -7,6 +7,7 @@ Item {
     property bool backgroundClicked: false
     property string coverUrl: ""
     property string title: ""
+    property string station: ""
 
 
     RadioListModel {
@@ -16,72 +17,85 @@ Item {
 
     DSM.StateMachine {
         id: radioSM
-        initialState: st1
+        initialState: s1
         running: true
+
+        property bool ready: stReadyToPlay.active
 
         property string station: ""
 
-        signal change_station
-        signal load_tracks
+        signal load_track_info();
+        signal load_tracks();
+        signal init();
 
         DSM.State {
-            id: st1
+            id: s1
 
             DSM.SignalTransition {
-                targetState: stPreInitialized
-                signal: radioSM.change_station
+                targetState: sStationInitialized
+                signal: radioSM.init
             }
 
             onEntered: {
-                console.log("First state");
+                console.log("Initialized album");
             }
 
         }
 
         DSM.State {
-            id: stPreInitialized
+            id: sStationInitialized
 
             DSM.SignalTransition {
-                targetState: stLoading
+                targetState: stLoadingTracks
                 signal: radioSM.load_tracks
             }
-
-            onEntered: {
-                if (station.length !== 0) {
-                    console.log("radio.changeStation");
-
-                    YaClient.currentPlaylist = radio;
-                    radio.changeStation(station);
-                    radioSM.load_tracks();
-                }
-            }
         }
 
         DSM.State {
-            id: stLoading
+            id: stLoadingTracks
 
             DSM.SignalTransition {
-                targetState: stInitialized
+                targetState: stReadyToPlay
                 signal: radio.onTracksReceived
             }
 
             onEntered: {
-                console.log("radio.getTracks()");
-                radio.getTracks();
+                yaclientSM.loading();
+                YaClient.currentPlaylist.getTracks();
             }
         }
 
         DSM.State {
-            id: stInitialized
+            id: stLoadingTrack
 
-            // Load more tracks
             DSM.SignalTransition {
-                targetState: stLoading
-                signal: radioSM.load_tracks
+                targetState: stReadyToPlay
+                signal: radio.onCurrentTrackLinkReady
             }
 
             onEntered: {
-                console.log("Radio initialized with tracks.");
+                yaclientSM.loading();
+                console.log("Loading track...", radio.currentIndex);
+                YaClient.currentPlaylist.prepareCurrentTrackToPlay();
+            }
+        }
+
+        DSM.State {
+            id: stReadyToPlay
+
+            DSM.SignalTransition {
+                targetState: stLoadingTracks
+                signal: radioSM.load_tracks
+            }
+            
+            DSM.SignalTransition {
+                targetState: stLoadingTrack
+                signal: radioSM.load_track_info
+            }
+
+            onEntered: {
+                console.log("Album is ready.");
+                yaclientSM.playlist_ready();
             }
         }
     }
@@ -90,7 +104,7 @@ Item {
         target: radio
 
         onTracksReceived: {
-//            pageStack.push(Qt.resolvedUrl("../pages/PlaylistPage.qml"), { "playlistModel": radio, "playlistCover": coverUrl, "playlistTitle": title });
+            radioSM.load_track_info();
         }
     }
 
@@ -117,9 +131,14 @@ Item {
             id: mouseArea
             anchors.fill: parent
             onClicked: {         
-                radioSM.station = station;
-                radioSM.change_station();
+                radio.changeStation(station);
+                yaclientSM.playlistSM = radioSM;
+                YaClient.setPlaylist(radio);
+
+
                 pageStack.push(Qt.resolvedUrl("../pages/PlaylistPage.qml"), { "radioSM": radioSM, "playlistModel": radio, "playlistCover": coverUrl, "playlistTitle": title });
+//                pageStack.push(Qt.resolvedUrl("../pages/PlaylistPage.qml"), { "playlistModel": radio, "playlistCover": coverUrl, "playlistTitle": title });
+
             }
             onPressed: {
                 itemContainer.opacity = 1.0;
@@ -147,11 +166,11 @@ Item {
 
             Image {
                 anchors.horizontalCenter: parent.horizontalCenter
-                //            anchors.centerIn: parent
                 height: parent.height - radioLabel.height
                 width: height
 
                 source: coverUrl.replace("%%", "200x200")
+
             }
 
 
@@ -159,7 +178,8 @@ Item {
                 id: radioLabel
 
                 anchors {
-                    horizontalCenter: parent.horizontalCenter                }
+                    horizontalCenter: parent.horizontalCenter
+                }
 
                 text: title
             }

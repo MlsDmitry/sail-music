@@ -200,12 +200,7 @@ Page {
 //            console.log(radioListModel.currentIndex);
 //            if (radioListModel.currentIndex >= 0)
 //                console.log(radioListModel.currentTrack.coverUrl.replace("%%", "1000x1000"));
-//            pageStack.pushAttached(Qt.resolvedUrl("TrackPage.qml"), {
-//                                       "radio": radioListModel,
-//                                       "currentCoverImg": radioListModel.currentIndex >= 0 ? radioListModel.currentTrack.coverUrl.replace("%%", "1000x1000") : "",
-//                                       "currentSongTitle": radioListModel.currentIndex >= 0 ? radioListModel.currentTrack.title : ""
-//                                   }
-//                                   );
+            pageStack.pushAttached(Qt.resolvedUrl("TrackPage.qml"));
         }
     }
 }

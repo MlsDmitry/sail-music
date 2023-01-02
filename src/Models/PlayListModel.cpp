@@ -3,6 +3,7 @@
 
 PlayListModel::PlayListModel(QObject *parent) : QAbstractListModel(parent)
 {
+    _currentIndex = -1;
     _transport = new ApiRequest();
 }
 
@@ -82,7 +83,7 @@ QVariant PlayListModel::get(int idx)
     return itemData;
 }
 
-void PlayListModel::setIndex(int idx)
+int PlayListModel::setIndex(int idx)
 {
     if (idx >= 0 && idx < _tracks.count())
     {
@@ -90,7 +91,10 @@ void PlayListModel::setIndex(int idx)
         _currentIndex = idx;
         _currentTrack = _tracks.at(idx).value<Track *>();
         emit currentTrackUpdated();
+        return idx;
     }
+
+    return -1;
 }
 
 void PlayListModel::prepareCurrentTrackToPlay()
@@ -108,6 +112,7 @@ void PlayListModel::trackDownloadInfoReady()
     qDebug() << "Requesting track link for bitrate: " << _currentTrack->getMaxBitrateAvailable();
 
     connect(_currentTrack, &Track::downloadLinkReady, this, [=](QString url) {
+        emit currentTrackLinkReady(url);
 //        _currentTrack->state |= Track::READY_TO_PLAY;
 //        emit dataChanged(index(_currentIndex), index(_currentIndex), { ID, TITLE, COVER_URL });
     },

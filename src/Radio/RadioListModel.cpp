@@ -12,7 +12,6 @@
 
 RadioListModel::RadioListModel(QObject *parent) : PlayListModel(parent)
 {
-    _currentIndex = -1;
     _service = new RadioService();
 }
 
@@ -102,6 +101,9 @@ void RadioListModel::getTracks()
             endInsertRows();
 
             _batchId = batchId;
+
+            if (_currentIndex == -1)
+                setIndex(0);
 
             emit tracksReceived();
         },

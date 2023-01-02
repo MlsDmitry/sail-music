@@ -31,7 +31,7 @@ class YaClient : public QObject
     Q_PROPERTY(QString lastPassword MEMBER _lastPassword)
     Q_PROPERTY(YaClient::Error lastError MEMBER _lastError)
     Q_PROPERTY(QString lastErrorString MEMBER _lastErrorString)
-    Q_PROPERTY(PlayListModel *currentPlaylist MEMBER currentPlaylist)
+    Q_PROPERTY(PlayListModel *currentPlaylist MEMBER currentPlaylist NOTIFY playlistUpdated)
     Q_PROPERTY(QMediaPlayer *player MEMBER _player)
 
     explicit YaClient(QObject *parent = nullptr);
@@ -90,12 +90,14 @@ class YaClient : public QObject
     void replySSLErrors(QNetworkReply *reply, QList<QSslError> errors);
     void handleAuthResponse(QNetworkReply *reply);
     void audioPositionChanged(qint64 duration);
+    void setPlaylist(PlayListModel* playlist);
 
   signals:
     void audioStateChanged(QMediaPlayer::State state);
     void audioProgress(qint64 position);
     void error(YaClient::Error error);
     void authorized(QString userId, QString token);
+    void playlistUpdated();
 
   private:
     void clearCaptchaData();

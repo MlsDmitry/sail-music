@@ -33,7 +33,8 @@ class PlayListModel : public QAbstractListModel
     {
         ID = Qt::UserRole + 1,
         TITLE,
-        COVER_URL
+        COVER_URL,
+        
     };
 
     Q_ENUM(Roles)
@@ -43,13 +44,13 @@ class PlayListModel : public QAbstractListModel
     virtual QHash<int, QByteArray> roleNames() const;
 
     Q_INVOKABLE QVariant get(int idx);
-    Q_INVOKABLE void setIndex(int idx);
+    Q_INVOKABLE int setIndex(int idx);
     Q_INVOKABLE void prepareCurrentTrackToPlay();
 
     Q_INVOKABLE virtual void getTracks();
 
     Q_INVOKABLE int getCurrentTrackId();
-    int getCurrentAlbumId();
+        int getCurrentAlbumId();
     void updateCurrentTrackPlayedSeconds(qint64 seconds);
 
   public slots:

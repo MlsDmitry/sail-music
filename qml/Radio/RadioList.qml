@@ -2,7 +2,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import org.k_bsp.sailmusic 1.0
 
-import "../components"
+//import "../components"
 
 Item {
 
@@ -38,32 +38,32 @@ Item {
 
             model: ListModel {
                 ListElement {
-                    station: "user:onyourwave"
+                    stationName: "user:onyourwave"
                     radioCoverUrl: "https://avatars.yandex.net/get-music-misc/70850/rotor-personal-station-icon/400x400"
                     radioName: "My Vibe"
                     radioColor: "#2AA75B"
                 }
 
                 ListElement {
-                    station: "local:moscow"
+                    stationName: "local:moscow"
                     radioCoverUrl: "https://avatars.yandex.net/get-music-misc/29541/rotor-local-moscow-icon/400x400"
                     radioName: "Popular in Moscow"
                     radioColor: "black"
                 }
                 ListElement {
-                    station: "genre:doommetal"
+                    stationName: "genre:doommetal"
                     radioCoverUrl: "https://avatars.yandex.net/get-music-misc/34161/rotor-genre-metal-icon/400x400"
                     radioName: "Doom metal"
                     radioColor: "black"
                 }
                 ListElement {
-                    station: "genre:bassgenre"
+                    stationName: "genre:bassgenre"
                     radioCoverUrl: "https://avatars.yandex.net/get-music-misc/40584/rotor-genre-dubstep-icon/400x400"
                     radioName: "Bass"
                     radioColor: "black"
                 }
                 ListElement {
-                    station: "genre:rap"
+                    stationName: "genre:rap"
                     radioCoverUrl: "https://avatars.yandex.net/get-music-misc/34161/rotor-genre-rusrap-icon/400x400"
                     radioName: "Russian Rap"
                     radioColor: "black"
@@ -76,6 +76,7 @@ Item {
 
                 coverUrl: radioCoverUrl
                 title: radioName
+                station: stationName
             }
 
 

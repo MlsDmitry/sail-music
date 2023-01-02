@@ -32,7 +32,7 @@ Item {
             id: mouseArea
             anchors.fill: parent
             onClicked: {
-                YaClient.currentPlaylist = radio;
+                YaClient.setPlaylist(radio)
                 radio.changeStation(station);
                 radio.getTracks();
 //                pageStack.push(Qt.resolvedUrl("../pages/PlaylistPage.qml"), { "playlistModel": radio });

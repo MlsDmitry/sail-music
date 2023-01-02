@@ -7,19 +7,13 @@ import "../components"
 Page {
     id: page
 
+    property bool waitingPlay: false
     property var radio
-    property string currentCoverImg: ""
+    property string currentCoverUrl: ""
     property string currentSongTitle: ""
 
     SilicaFlickable {
         anchors.fill: parent
-
-        PullDownMenu {
-            MenuItem {
-                text: qsTr("Log in")
-                onClicked: pageStack.animatorPush(Qt.resolvedUrl("LoginPage.qml"))
-            }
-        }
 
         Label {
             id: songTitle
@@ -47,7 +41,7 @@ Page {
             width: 500
             height: 500
 
-            source: currentCoverImg.replace("%%", "1000x1000")
+            source: currentCoverUrl.replace("%%", "1000x1000")
         }
 
         Item {
@@ -94,148 +88,93 @@ Page {
                 iconUrl: "image://theme/icon-m-media-rewind"
 
                 onMediaClicked: {
-                    if (radio.currentTrack) {
-                        playButton.iconUrl = "image://theme/icon-m-play"
-                        YaClient.stop();
-                        radio.setIndex(radio.currentIndex - 1)
-                    }
+                    yaclientSM.change_song(-1)
                 }
             }
+
             MediaButton {
                 id: playButton
-                iconUrl: YaClient.playState() === YaClient.PlayingState ? "image://theme/icon-m-pause" : "image://theme/icon-m-play"
+                iconUrl: stPlaying.active ? "image://theme/icon-m-pause" : "image://theme/icon-m-play"
 
                 onMediaClicked: {
-                    if (radio.currentTrack) {
-                        if (YaClient.playState() === YaClient.PlayingState) {
-                            YaClient.pause();
-                        } else if (YaClient.playState() === YaClient.PausedState) {
-                            YaClient.continuePlay();
+                    if (stPlaying.active) {
+                        yaclientSM.pause();
+                    } else {
+                        if (YaClient.currentPlaylist.currentTrack.getMaxBitrateAvailable() === "0") {
+                            yaclientSM.waitingPlay = true;
+                            console.log(yaclientSM.waitingPlay);
+                            yaclientSM.playlistSM.load_track_info();
                         } else {
-                            console.log("Track started");
-                            radio.prepareCurrentTrackToPlay ();
+                            yaclientSM.play();
                         }
                     }
                 }
             }
+
             MediaButton {
                 iconUrl: "image://theme/icon-m-media-forward"
 
                 onMediaClicked: {
-                    if (radio.currentTrack) {
-                        playButton.iconUrl = "image://theme/icon-m-play"
-                        YaClient.stop();
-                        radio.sendFeedbackRequest(3)
-                        console.log("radio.rowCount()" << radio.rowCount())
-                        if (radio.currentIndex + 1 === radio.rowCount()) {
-                            radio.getTracks();
-                        } else {
-                            radio.setIndex(radio.currentIndex + 1);
-                        }
-                    }
+                    yaclientSM.change_song(1)
                 }
             }
-
-//            Connections {
-//                target: radio
-
-//                onTracksReceived: {
-//                    console.log("Tracks received. total tracks: " + radio.rowCount());
-//                    if (radio.rowCount() > 0 && radio.currentIndex === -1) {
-//                        radio.sendFeedbackRequest(radio.RadioStarted);
-//                        radio.setIndex(0);
-//                        console.log("Set current index to 0. Radio Started");
-//                    }
-
-//                    for (var i = radio.currentIndex; i < radio.rowCount(); i++) {
-//                        console.log(radio.get(i).title);
-//                    }
-
-//                }
-
-//                onCurrentTrackUpdated: {
-//                    console.log("Here!!!")
-//                    checkSetCurrenTrack();
-//                }
-
-//                onFeedbackReceived: {
-//                    console.log("Preparing current track...");
-//                }
-
-//                onCurrentTrackLinkReady: {
-//                    console.log("Current track is ready to play");
-//                    //                    console.log(url);
-//                    YaClient.play(url);
-//                    radio.sendFeedbackRequest(1)
-
-//                }
-//            }
-
-//            Connections {
-//                target: YaClient
-
-//                onAudioProgress: {
-////                    console.log((progressBar.width - Theme.paddingLarge * 2) * (position / radio.currentTrack.duration));
-//                    playingProgressItem.width = (progressBar.width - Theme.paddingLarge * 2) * (position / radio.currentTrack.duration);
-//                }
-
-//                onAudioStateChanged: {
-//                    console.log(state + ":" + YaClient.PlayingState)
-//                    if (state === YaClient.PlayingState) {
-//                        playButton.iconUrl = "image://theme/icon-m-pause"
-//                    } else if (state === YaClient.PausedState) {
-//                        playButton.iconUrl = "image://theme/icon-m-play"
-//                    }
-//                }
-//            }
-
-//            Connections {
-//                target: YaClient.player
-
-//                onMediaStatusChanged: {
-//                    console.log(radio.currentTrack.totalPlayedMs, radio.currentTrack.duration);
-//                    if (status === YaClient.EndOfMedia && radio.currentTrack.duration <= radio.currentTrack.totalPlayedMs) {
-//                        YaClient.stop();
-//                        radio.sendFeedbackRequest(2);
-//                        var prevIndex = radio.currentIndex;
-
-//                        if (radio.currentIndex + 1 === radio.rowCount()) {
-//                            radio.getTracks();
-//                        } else {
-//                            radio.setIndex(prevIndex + 1);
-//                            radio.prepareCurrentTrackToPlay();
-//                        }
-//                    }
-//                }
-//            }
-
         }
     }
+
 
     function checkSetCurrenTrack()
     {
-        if (radio.currentIndex === -1)
-            return;
 
-        var cover = radio.currentTrack.coverUrl.replace("%%", "1000x1000");
-        var title = radio.currentTrack.title;
+        var cover = YaClient.currentPlaylist.currentTrack.coverUrl;
+        var title = YaClient.currentPlaylist.currentTrack.title;
 
-        if (currentCoverImg !== cover) {
-            currentCoverImg = cover;
+        if (cover && currentCoverUrl !== cover) {
+            console.log("Set cover", currentCoverUrl, cover)
+            currentCoverUrl = cover;
         }
-        if(currentSongTitle !== title) {
+        if(title && currentSongTitle !== title) {
+            console.log("Set title", currentSongTitle, title)
             currentSongTitle = title;
         }
-
-        //        radio.prepareCurrentTrackToPlay()
-        //        console.log("Preparing current track...");
-        console.log("Done!")
     }
 
+    Connections {
+        target: yaclientSM
+
+        onReadyChanged: {
+            if (yaclientSM.waitingPlay && yaclientSM.ready) {
+                console.log("shit...");
+                yaclientSM.waitingPlay = false;
+                yaclientSM.play();
+            } else {
+                checkSetCurrenTrack();
+            }
+        }
+    }
+
+    Connections {
+        target: YaClient.currentPlaylist
+
+        ignoreUnknownSignals: true
+
+        onCurrentTrackUpdated: {
+            console.log("Current track updated");
+            checkSetCurrenTrack();
+        }
+    }
+
+
+
     onStatusChanged: {
+        if (status == PageStatus.Active && (yaclientSM.ready || yaclientSM.playing || yaclientSM.paused)) {
+            checkSetCurrenTrack();
+            console.log("ready");
+//            console.log(YaClient.currentPlaylist.currentTrack)
+        }
+    }
+
 //        console.log("Index is " + radio.currentIndex + " Page status " + status + " === " + PageStatus.Active);
         //        if (status == PageStatus.Active) {
         //            checkSetCurrenTrack();
         //        }
-    }
 }
